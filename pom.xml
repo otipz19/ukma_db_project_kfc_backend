@@ -95,6 +95,7 @@
   </dependencies>
 
   <build>
+    <finalName>KFC</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -106,8 +107,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <target>23</target>
-          <source>23</source>
+          <target>21</target>
+          <source>21</source>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
