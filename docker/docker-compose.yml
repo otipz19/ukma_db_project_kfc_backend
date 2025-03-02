@@ -1,0 +1,16 @@
+version: "3.8"
+name: kfc-services
+services:
+  postgres:
+    image: postgres:17.2
+    ports:
+      - "5432:5432"
+    volumes:
+      - kfc_volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: kfc_db
+
+volumes:
+  kfc_volume:
