@@ -1,33 +1,24 @@
 package ua.edu.ukma.db.kfc.configuration;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 import org.flywaydb.core.Flyway;
-import org.glassfish.jersey.server.monitoring.ApplicationEvent;
-import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
-import org.glassfish.jersey.server.monitoring.RequestEvent;
-import org.glassfish.jersey.server.monitoring.RequestEventListener;
 
 import javax.sql.DataSource;
 
-@ApplicationScoped
-public class FlywayMigrationApplier implements ApplicationEventListener {
+@WebListener
+public class FlywayMigrationApplier implements ServletContextListener {
 
     @Inject
     private DataSource dataSource;
 
     @Override
-    public void onEvent(ApplicationEvent applicationEvent) {
-        if (applicationEvent.getType() == ApplicationEvent.Type.INITIALIZATION_FINISHED) {
-            Flyway flyway = Flyway.configure()
-                    .dataSource(dataSource)
-                    .load();
-            flyway.migrate();
-        }
-    }
-
-    @Override
-    public RequestEventListener onRequest(RequestEvent requestEvent) {
-        return null;
+    public void contextInitialized(ServletContextEvent sce) {
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .load();
+        flyway.migrate();
     }
 }
