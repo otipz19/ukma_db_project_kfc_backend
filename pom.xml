@@ -12,6 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <wildfly.version>35.0.1</wildfly.version>
     <lombok.version>1.18.36</lombok.version>
     <flyway.version>11.3.1</flyway.version>
     <junit.version>5.11.0</junit.version>
@@ -62,6 +63,13 @@
       <artifactId>flyway-database-postgresql</artifactId>
       <version>${flyway.version}</version>
       <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.microprofile.config</groupId>
+      <artifactId>microprofile-config-api</artifactId>
+      <version>3.1</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
