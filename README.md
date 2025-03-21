@@ -1,26 +1,33 @@
 # Project installation
 
-## Docker guide v1:
+## Docker guide:
 
-1. clone the project https://github.com/otipz19/ukma_db_project_kfc_backend
+1. clone the project <br>
+https://github.com/otipz19/ukma_db_project_kfc_backend
 
-3. login to github container registry docker login ghcr.io
+2. login to github container registry<br>
+docker login ghcr.io
 
-4. go to docker/ subfolder
+3. go to docker/ subfolder<br>
+cd docker/
 
-5. run docker compose up --pull=always docker/
+4. run<br>
+docker compose up --pull=always
 
-## WildFly guide v1:
+## WildFly guide:
 
-1. download https://www.wildfly.org/downloads/  35.0.1.Final
+1. download WildFly 35.0.1.Final<br>
+https://www.wildfly.org/downloads/
 
 2. unzip to chosen folder
 
-3. go to bin/ subfolder
+3. go to bin/ subfolder<br>
+cd bin/
 
 4. run ./add-user.sh (or bat for windows) and create admin account for management console
 
-5. clone the project https://github.com/otipz19/ukma_db_project_kfc_backend
+5. clone the project<br>
+https://github.com/otipz19/ukma_db_project_kfc_backend
 
 6. add Idea wildfly configuration
 ![add_idea_wildfly_config_1.png](readme%2Fimages%2Fadd_idea_wildfly_config_1.png)
