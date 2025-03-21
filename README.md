@@ -4,12 +4,11 @@
 
 1. clone the project https://github.com/otipz19/ukma_db_project_kfc_backend
 
-2. add Idea docker configuration
-![add_idea_docker_config.png](readme%2Fimages%2Fadd_idea_docker_config.png)
-
 3. login to github container registry docker login ghcr.io
 
-4. run docker configuration
+4. go to docker/ subfolder
+
+5. run docker compose up --pull=always docker/
 
 ## WildFly guide v1:
 
