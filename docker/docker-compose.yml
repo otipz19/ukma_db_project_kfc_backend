@@ -13,12 +13,14 @@ services:
       POSTGRES_DB: kfc_db
 
   wildfly:
+    depends_on:
+      - postgres
     image: ghcr.io/otipz19/ukma_db_project_kfc_backend:main
     ports:
       - "8080:8080"
       - "9990:9990"
     environment:
-      DB_HOST: "" # todo: fix this
+      DATASOURCE_SERVERNAME: postgres
 
 volumes:
   kfc_volume:
