@@ -4,13 +4,12 @@
 
 1. clone the project https://github.com/otipz19/ukma_db_project_kfc_backend
 
-2. run mvn clean package -DskipTests
+2. add Idea docker configuration
+![add_idea_docker_config.png](readme%2Fimages%2Fadd_idea_docker_config.png)
 
-3. open terminal in the root folder
+3. login to github container registry docker login ghcr.io
 
-4. run docker build --tag "kfc" .
-
-5. run docker run -p 8080:8080 -p 9990:9990 -e JAVA_OPTS="-XX:UseSVE=0" kfc
+4. run docker configuration
 
 ## WildFly guide v1:
 
