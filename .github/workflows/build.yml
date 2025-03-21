@@ -20,3 +20,10 @@ jobs:
         cache: maven
     - name: Package
       run: mvn -B package
+    - uses: actions/upload-artifact@v4
+      with:
+        name: KFC
+        path: ./target/KFC.war
+      
+    
+    
