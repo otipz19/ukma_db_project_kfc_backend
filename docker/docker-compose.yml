@@ -21,6 +21,7 @@ services:
       - "9990:9990"
     environment:
       DATASOURCE_SERVERNAME: postgres
+      # JAVA_OPTS: "-XX:UseSVE=0" # uncomment for MacOS
 
 volumes:
   kfc_volume:
