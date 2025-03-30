@@ -4,15 +4,16 @@ import jakarta.inject.Inject;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
 
 @WebListener
+@RequiredArgsConstructor(onConstructor_ = @Inject)
 public class FlywayMigrationApplier implements ServletContextListener {
 
-    @Inject
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
