@@ -72,6 +72,13 @@
     </dependency>
 
     <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.36</version>
@@ -102,10 +109,69 @@
     <finalName>KFC</finalName>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>3.4.0</version>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>7.12.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generatorName>jaxrs-spec</generatorName>
+          <inputSpecRootDirectory>${project.basedir}/contracts/</inputSpecRootDirectory>
+          <inputSpec>.</inputSpec>
+          <apiPackage>ua.edu.ukma.db.kfc.rest.api</apiPackage>
+          <modelPackage>ua.edu.ukma.db.kfc.rest.model</modelPackage>
+          <modelNameSuffix>Dto</modelNameSuffix>
+          <mergedFileName>_index-auto</mergedFileName>
+          <cleanupOutput>true</cleanupOutput>
+          <generateApiTests>false</generateApiTests>
+          <generateModelTests>false</generateModelTests>
+          <generateApiDocumentation>false</generateApiDocumentation>
+          <openapiNormalizer>REF_AS_PARENT_IN_ALLOF=true</openapiNormalizer>
+          <additionalProperties>removeEnumValuePrefix=false</additionalProperties>
+          <configOptions>
+            <sourceFolder>src/main/java</sourceFolder>
+            <useJakartaEe>true</useJakartaEe>
+            <interfaceOnly>true</interfaceOnly>
+            <returnResponse>true</returnResponse>
+            <useTags>true</useTags>
+            <generateConstructorWithAllArgs>true</generateConstructorWithAllArgs>
+            <useSwaggerAnnotations>false</useSwaggerAnnotations>
+            <dateLibrary>java8</dateLibrary>
+            <openApiNullable>false</openApiNullable>
+            <generatePom>false</generatePom>
+          </configOptions>
+        </configuration>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>target/generated-sources/openapi/src/main/java/ua/edu/ukma/db/kfc/rest</directory>
+                  <includes>
+                    <include>*.java</include>
+                  </includes>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -121,6 +187,12 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
       </plugin>
     </plugins>
   </build>

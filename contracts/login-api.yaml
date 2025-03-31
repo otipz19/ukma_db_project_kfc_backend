@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  description: Login Service
+  version: '1.0'
+  title: Login Service
+
+tags:
+  - name: login-controller
+    description: Login Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/login:
+    post:
+      operationId: loginUser
+      tags:
+        - login-controller
+      summary: Login user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        200:
+          description: Tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/reset-token:
+    post:
+      operationId: resetToken
+      tags:
+        - login-controller
+      summary: Reset token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetTokenRequest'
+      responses:
+        200:
+          description: New token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetTokenResponse'
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+      required:
+        - token
+        - refreshToken
+
+    ResetTokenRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken
+
+    ResetTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token

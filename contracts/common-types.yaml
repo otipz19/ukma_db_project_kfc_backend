@@ -1,0 +1,19 @@
+components:
+  responses:
+    NotModified:
+      description: Not Modified
+
+    BadRequest:
+      description: Invalid Parameters
+
+    NotFound:
+      description: The specified resource was not found
+
+    Unauthorized:
+      description: Unauthorized
+
+    Forbidden:
+      description: Forbidden
+
+    InternalServerError:
+      description: Internal Server Error
