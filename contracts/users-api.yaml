@@ -1,0 +1,47 @@
+openapi: 3.0.0
+info:
+  description: User Service
+  version: '1.0'
+  title: User Service
+
+tags:
+  - name: user-controller
+    description: User Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/user/current:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - user-controller
+      summary: Get current user
+      responses:
+        200:
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - email
+        - role

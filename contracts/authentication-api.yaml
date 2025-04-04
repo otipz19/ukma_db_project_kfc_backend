@@ -1,21 +1,21 @@
 openapi: 3.0.0
 info:
-  description: Login Service
+  description: Authentication Service
   version: '1.0'
-  title: Login Service
+  title: Authentication Service
 
 tags:
-  - name: login-controller
-    description: Login Controller
+  - name: authentication-controller
+    description: Authentication Controller
 servers:
   - url: http://localhost:8080
 
 paths:
-  /api/login:
+  /auth/login:
     post:
       operationId: loginUser
       tags:
-        - login-controller
+        - authentication-controller
       summary: Login user
       requestBody:
         content:
@@ -34,11 +34,11 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/reset-token:
+  /auth/reset-token:
     post:
       operationId: resetToken
       tags:
-        - login-controller
+        - authentication-controller
       summary: Reset token
       requestBody:
         content:
@@ -64,6 +64,7 @@ components:
       properties:
         username:
           type: string
+          format: email
         password:
           type: string
       required:

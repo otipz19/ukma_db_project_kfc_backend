@@ -1,11 +1,16 @@
 package ua.edu.ukma.db.kfc.repositories;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.inject.Inject;
 import ua.edu.ukma.db.kfc.transactions.TransactionManager;
 
-@RequiredArgsConstructor(onConstructor_ = @jakarta.inject.Inject)
-public abstract class BaseRepository {
+import java.util.Optional;
 
-    protected final TransactionManager transactionManager;
+public abstract class BaseRepository<E, I> {
 
+    @Inject
+    protected TransactionManager transactionManager;
+
+    public abstract Optional<E> findById(I id);
+
+    public abstract I save(E entity);
 }

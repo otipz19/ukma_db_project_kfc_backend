@@ -1,57 +1,39 @@
 package ua.edu.ukma.db.kfc.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import jakarta.annotation.Priority;
-import jakarta.ws.rs.Priorities;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ContainerRequestFilter;
-import jakarta.ws.rs.container.ResourceInfo;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.Provider;
-import ua.edu.ukma.db.kfc.auth.JwtUtil;
-
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.inject.Inject;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.HttpHeaders;
+import lombok.RequiredArgsConstructor;
+import ua.edu.ukma.db.kfc.configuration.SecurityConstants;
+
 import java.io.IOException;
-import java.lang.reflect.Method;
 
-@Provider
-@Secured
-@Priority(Priorities.AUTHENTICATION)
-public class JwtFilter implements ContainerRequestFilter {
+@WebFilter("/api/*")
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class JwtFilter extends GenericFilter {
 
-    @Context
-    private ResourceInfo resourceInfo;
+    private final JwtServices jwtServices;
+    private final SecurityContextHolder securityContextHolder;
+    private final SecurityConstants securityConstants;
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        if (!isSecured(resourceInfo.getResourceMethod(), resourceInfo.getResourceClass())) {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        String header = ((HttpServletRequest)request).getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.startsWith(securityConstants.getTokenPrefix())) {
+            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        String authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("Authorization header must be provided").build());
-            return;
-        }
-
-        String token = authHeader.substring("Bearer ".length()).trim();
-
+        String token = header.replace(securityConstants.getTokenPrefix(), "");
         try {
-            Claims claims = JwtUtil.validateToken(token);
-            requestContext.setProperty("userEmail", claims.getSubject());
-        } catch (JwtException e) {
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("Invalid or expired token").build());
+            SecurityContext context = jwtServices.verifyToken(token);
+            securityContextHolder.setContext(context);
+            chain.doFilter(request, response);
+        } catch (JWTVerificationException ex) {
+            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
-    }
-
-    private boolean isSecured(Method method, Class<?> resourceClass) {
-        if (method == null) return false;
-
-        return method.isAnnotationPresent(Secured.class) ||
-                (resourceClass != null && resourceClass.isAnnotationPresent(Secured.class));
     }
 }
