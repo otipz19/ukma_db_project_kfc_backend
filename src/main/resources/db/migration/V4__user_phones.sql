@@ -1,0 +1,4 @@
+CREATE TABLE user_phones (
+    phone VARCHAR(15) PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
