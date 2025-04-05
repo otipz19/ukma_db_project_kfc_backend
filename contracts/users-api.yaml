@@ -60,11 +60,11 @@ components:
       properties:
         id:
           type: integer
-        email:
+        username:
           type: string
         role:
           type: string
       required:
         - id
-        - email
+        - username
         - role

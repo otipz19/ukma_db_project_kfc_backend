@@ -17,6 +17,9 @@ public class ClientEntity {
 
     private int id;
 
+    // from UserEntity
+    private String username;
+
     @NotBlank
     @Size(min = 1, max = 64)
     private String surname;

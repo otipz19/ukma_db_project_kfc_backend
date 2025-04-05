@@ -25,7 +25,7 @@ public class JwtServices {
 
     public String generateToken(UserEntity user) {
         return JWT.create()
-                .withSubject(user.getEmail())
+                .withSubject(user.getUsername())
                 .withIssuedAt(new Date(TimeUtils.getCurrentTimeUTC()))
                 .withExpiresAt(new Date(TimeUtils.getCurrentTimeUTC() + securityConstants.getTokenExpiration()))
                 .withClaim(SecurityConstants.ROLE_CLAIM, user.getRole().toString())
@@ -42,7 +42,7 @@ public class JwtServices {
 
     public String generateRefreshToken(UserEntity user) {
         return JWT.create()
-                .withSubject(user.getEmail())
+                .withSubject(user.getUsername())
                 .withIssuedAt(new Date(TimeUtils.getCurrentTimeUTC()))
                 .withExpiresAt(new Date(TimeUtils.getCurrentTimeUTC() + securityConstants.getRefreshTokenExpiration()))
                 .sign(HMAC512(securityConstants.getTokenSecret().getBytes()));

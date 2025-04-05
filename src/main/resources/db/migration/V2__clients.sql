@@ -1,5 +1,5 @@
 CREATE TABLE clients (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     surname VARCHAR(64) NOT NULL,
     first_name VARCHAR(64) NOT NULL,
     middle_name VARCHAR(64) NULL,

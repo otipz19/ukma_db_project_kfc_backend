@@ -13,8 +13,8 @@ public class TransactionInterceptor {
 
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
+        if (transactionManager.isTransactionActive()) return context.proceed();
         try {
-            if (transactionManager.isTransactionActive()) return context.proceed();
             TransactionSpecification transactionSpecification = getTransactionSpecification(context);
             transactionManager.beginTransaction(transactionSpecification.readOnly(), transactionSpecification.isolation());
             Object result = context.proceed();

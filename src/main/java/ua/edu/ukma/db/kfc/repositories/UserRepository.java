@@ -30,7 +30,7 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
     }
 
     public boolean existsByEmail(String email) {
-        final String query = "SELECT exists(SELECT * FROM users WHERE email = ?)";
+        final String query = "SELECT exists(SELECT * FROM users WHERE username = ?)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -41,10 +41,10 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
         }
     }
 
-    public Optional<UserEntity> findByEmail(String email) {
-        String query = "SELECT * FROM users WHERE email = ?";
+    public Optional<UserEntity> findByUsername(String username) {
+        String query = "SELECT * FROM users WHERE username = ?";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setString(1, email);
+            stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return Optional.of(map(rs));
             }
@@ -56,11 +56,11 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
 
     @Override
     public Integer save(UserEntity user) {
-        String query = "INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?) RETURNING id";
+        String query = "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?) RETURNING id";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setString(1, user.getEmail());
+            stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
-            stmt.setString(3, user.getRole().toString());
+            stmt.setString(3, enumsMapper.map(user.getRole()));
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) throw new DataBaseException("Failed to save user");
                 return rs.getInt(1);
@@ -74,6 +74,7 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
         String query = "UPDATE users SET is_active = false WHERE id = ?";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
@@ -82,7 +83,7 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
     private UserEntity map(ResultSet result) throws SQLException {
         return new UserEntity(
                 result.getInt("id"),
-                result.getString("email"),
+                result.getString("username"),
                 result.getString("password_hash"),
                 enumsMapper.map(result.getString("role")),
                 result.getBoolean("is_active")

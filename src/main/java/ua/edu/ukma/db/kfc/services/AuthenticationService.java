@@ -31,7 +31,7 @@ public class AuthenticationService {
     private SecurityConstants securityConstants;
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        Optional<UserEntity> user = userRepository.findByEmail(loginRequestDto.getUsername());
+        Optional<UserEntity> user = userRepository.findByUsername(loginRequestDto.getUsername());
         if (user.isEmpty() || !user.get().isActive() ||
                 !passwordServices.check(loginRequestDto.getPassword(), getPasswordHash(user.get())))
             throw new NotAuthorizedException("Authorization failed");
@@ -41,7 +41,7 @@ public class AuthenticationService {
     }
 
     private String getPasswordHash(UserEntity user) {
-        if (user.getEmail().equals(securityConstants.getAdminLogin()))
+        if (user.getUsername().equals(securityConstants.getAdminLogin()))
             return securityConstants.getAdminPasswordHash();
         return user.getPasswordHash();
     }
@@ -49,7 +49,7 @@ public class AuthenticationService {
     public ResetTokenResponseDto resetToken(ResetTokenRequestDto resetTokenRequestDto) {
         try {
             String subject = jwtServices.verifyRefreshToken(resetTokenRequestDto.getRefreshToken());
-            UserEntity user = userRepository.findByEmail(subject).filter(UserEntity::isActive).orElseThrow();
+            UserEntity user = userRepository.findByUsername(subject).filter(UserEntity::isActive).orElseThrow();
             String token = jwtServices.generateToken(user);
             return new ResetTokenResponseDto(token);
         } catch (Exception e) {

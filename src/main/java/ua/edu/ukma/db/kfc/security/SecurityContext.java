@@ -8,7 +8,7 @@ import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
 @RequiredArgsConstructor
 public class SecurityContext {
 
-    private final String userName;
+    private final String username;
     private final RoleEnum userRole;
 
 }
