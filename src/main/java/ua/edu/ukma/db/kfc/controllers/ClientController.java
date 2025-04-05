@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.ClientControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.ClientRegistrationDto;
+import ua.edu.ukma.db.kfc.rest.model.UpdateClientDto;
 import ua.edu.ukma.db.kfc.services.ClientService;
 
 @ApplicationScoped
@@ -26,5 +27,17 @@ public class ClientController implements ClientControllerApi {
     @Override
     public Response getAllClients() {
         return Response.ok(clientService.getAllClients()).build();
+    }
+
+    @Override
+    public Response updateClientByUserId(Integer userId, UpdateClientDto updateClientDto) {
+        clientService.updateClientByUserId(userId, updateClientDto);
+        return Response.noContent().build();
+    }
+
+    @Override
+    public Response deleteClientByUserId(Integer userId) {
+        clientService.deleteClientByUserId(userId);
+        return Response.noContent().build();
     }
 }

@@ -11,9 +11,7 @@ public class ClientValidator extends BaseValidator<ClientEntity> {
 
     @Override
     public void validForView(ClientEntity entity) {
-        String currentUser = securityContextHolder.getContext().getUsername();
-        if (currentUser.equals(entity.getUsername()))
-            return;
+        if (actionForThemself(entity)) return;
         securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
     }
 
@@ -25,5 +23,23 @@ public class ClientValidator extends BaseValidator<ClientEntity> {
     @Override
     public void validForCreate(ClientEntity entity) {
         validateData(entity);
+    }
+
+    @Override
+    public void validForUpdate(ClientEntity entity) {
+        if (actionForThemself(entity)) return;
+        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+        validateData(entity);
+    }
+
+    @Override
+    public void validForDelete(ClientEntity entity) {
+        if (actionForThemself(entity)) return;
+        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+    }
+
+    private boolean actionForThemself(ClientEntity entity) {
+        String currentUser = securityContextHolder.getContext().getUsername();
+        return currentUser.equals(entity.getUsername());
     }
 }

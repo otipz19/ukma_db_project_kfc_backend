@@ -85,6 +85,45 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+    put:
+      operationId: updateClientByUserId
+      tags:
+        - client-controller
+      summary: Update client by user id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClient'
+      responses:
+        204:
+          description: Client was updated
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    delete:
+      operationId: deleteClientByUserId
+      tags:
+        - client-controller
+      summary: Delete client by user id
+      responses:
+        204:
+          description: Client was deleted
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UpdateClient:

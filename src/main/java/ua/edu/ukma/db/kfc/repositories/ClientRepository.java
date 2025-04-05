@@ -20,7 +20,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
                 FROM clients LEFT JOIN users ON clients.user_id = users.id
-                WHERE clients.id = ?
+                WHERE clients.id = ? AND is_deleted = false
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -37,7 +37,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
                 FROM clients LEFT JOIN users ON clients.user_id = users.id
-                WHERE user_id = ?
+                WHERE user_id = ? AND is_deleted = false
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, user_id);
@@ -54,6 +54,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
                 FROM clients LEFT JOIN users ON clients.user_id = users.id
+                WHERE is_deleted = false
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             try (ResultSet rs = stmt.executeQuery()) {
@@ -81,6 +82,39 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
                 if (!rs.next()) throw new DataBaseException("Failed to save client");
                 return rs.getInt(1);
             }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public void update(ClientEntity entity) {
+        String query = """
+                UPDATE clients
+                SET surname = ?, first_name = ?, middle_name = ?, bonuses = ?, birth_date = ?
+                WHERE id = ? AND is_deleted = false
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setString(1, entity.getSurname());
+            stmt.setString(2, entity.getFirstName());
+            stmt.setString(3, entity.getMiddleName());
+            stmt.setInt(4, entity.getBonuses());
+            stmt.setDate(5, TimeUtils.mapToSqlDate(entity.getBirthDate()));
+            stmt.setInt(6, entity.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public void deleteByUserId(int userId) {
+        String query = """
+                UPDATE clients
+                SET is_deleted = true, user_id = null
+                WHERE user_id = ?
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }

@@ -70,6 +70,16 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
         }
     }
 
+    public void delete(int id) {
+        String query = "DELETE FROM users WHERE id = ?";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     public void disableUser(int id) {
         String query = "UPDATE users SET is_active = false WHERE id = ?";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {

@@ -10,6 +10,7 @@ import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
 import ua.edu.ukma.db.kfc.repositories.ClientRepository;
 import ua.edu.ukma.db.kfc.rest.model.ClientDto;
 import ua.edu.ukma.db.kfc.rest.model.ClientRegistrationDto;
+import ua.edu.ukma.db.kfc.rest.model.UpdateClientDto;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.ClientValidator;
 
@@ -48,5 +49,19 @@ public class ClientService {
         List<ClientEntity> entities = repository.findAll();
         validator.validForView(entities);
         return mapper.toResponse(entities);
+    }
+
+    public void updateClientByUserId(int userId, UpdateClientDto updateClientDto) {
+        ClientEntity entity = repository.findByUserId(userId).orElseThrow(NotFoundException::new);
+        mapper.toEntity(updateClientDto, entity);
+        validator.validForUpdate(entity);
+        repository.update(entity);
+    }
+
+    public void deleteClientByUserId(int userId) {
+        ClientEntity entity = repository.findByUserId(userId).orElseThrow(NotFoundException::new);
+        validator.validForDelete(entity);
+        repository.deleteByUserId(userId);
+        userService.delete(userId);
     }
 }

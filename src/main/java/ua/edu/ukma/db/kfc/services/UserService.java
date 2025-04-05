@@ -40,6 +40,10 @@ public class UserService {
         return repository.save(user);
     }
 
+    public void delete(int id) {
+        repository.delete(id);
+    }
+
     public UserDto getCurrent() {
         SecurityContext context = securityContextHolder.getContext();
         UserEntity user = repository.findByUsername(context.getUsername()).orElseThrow(() -> new NotAuthorizedException("Bearer"));
