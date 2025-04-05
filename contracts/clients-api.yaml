@@ -24,7 +24,7 @@ paths:
               $ref: '#/components/schemas/ClientRegistration'
       responses:
         200:
-          description: Id of the registered client
+          description: User id of the registered client
           content:
             application/json:
               schema:
@@ -56,22 +56,22 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/client/{clientId}:
+  /api/client/{userId}:
     parameters:
       - in: path
-        name: clientId
+        name: userId
         required: true
         schema:
           type: integer
 
     get:
-      operationId: getClientById
+      operationId: getClientByUserId
       tags:
         - client-controller
-      summary: Get client by id
+      summary: Get client by user id
       responses:
         200:
-          description: Client with corresponding id
+          description: Client with corresponding user id
           content:
             application/json:
               schema:
@@ -122,10 +122,14 @@ components:
         - $ref: '#/components/schemas/UpdateClient'
         - type: object
           properties:
-            id:
+            userId:
               type: integer
             username:
               type: string
               format: email
             bonuses:
               type: integer
+          required:
+            - userId
+            - username
+            - bonuses

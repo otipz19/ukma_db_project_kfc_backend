@@ -17,7 +17,8 @@ public class ClientEntity {
 
     private int id;
 
-    // from UserEntity
+    private Integer userId;
+
     private String username;
 
     @NotBlank

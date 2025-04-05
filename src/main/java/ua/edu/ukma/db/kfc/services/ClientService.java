@@ -31,14 +31,15 @@ public class ClientService {
     public int registerClient(ClientRegistrationDto clientRegistrationDto) {
         int userId = userService.create(clientRegistrationDto.getUsername(), clientRegistrationDto.getPassword(), RoleEnum.CLIENT);
         ClientEntity client = new ClientEntity();
-        client.setId(userId);
+        client.setUserId(userId);
         mapper.toEntity(clientRegistrationDto, client);
         validator.validForCreate(client);
-        return repository.save(client);
+        repository.save(client);
+        return userId;
     }
 
-    public ClientDto getClient(int id) {
-        ClientEntity entity = repository.findById(id).orElseThrow(NotFoundException::new);
+    public ClientDto getClientByUserId(int userId) {
+        ClientEntity entity = repository.findByUserId(userId).orElseThrow(NotFoundException::new);
         validator.validForView(entity);
         return mapper.toResponse(entity);
     }

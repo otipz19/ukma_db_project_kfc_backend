@@ -18,9 +18,9 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
     @Override
     public Optional<ClientEntity> findById(Integer id) {
         String query = """
-                SELECT id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients NATURAL INNER JOIN users
-                WHERE id = ?
+                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                FROM clients LEFT JOIN users ON clients.user_id = users.id
+                WHERE clients.id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -33,10 +33,27 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         return Optional.empty();
     }
 
+    public Optional<ClientEntity> findByUserId(int user_id) {
+        String query = """
+                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                FROM clients LEFT JOIN users ON clients.user_id = users.id
+                WHERE user_id = ?
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, user_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return Optional.of(map(rs));
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return Optional.empty();
+    }
+
     public List<ClientEntity> findAll() {
         String query = """
-                SELECT id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients NATURAL INNER JOIN users
+                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                FROM clients LEFT JOIN users ON clients.user_id = users.id
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             try (ResultSet rs = stmt.executeQuery()) {
@@ -52,9 +69,9 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
 
     @Override
     public Integer save(ClientEntity entity) {
-        String query = "INSERT INTO clients (id, surname, first_name, middle_name, bonuses, birth_date) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+        String query = "INSERT INTO clients (user_id, surname, first_name, middle_name, bonuses, birth_date) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setInt(1, entity.getId());
+            stmt.setInt(1, entity.getUserId());
             stmt.setString(2, entity.getSurname());
             stmt.setString(3, entity.getFirstName());
             stmt.setString(4, entity.getMiddleName());
@@ -72,6 +89,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
     private ClientEntity map(ResultSet rs) throws SQLException {
         return new ClientEntity(
                 rs.getInt("id"),
+                rs.getObject("user_id", Integer.class),
                 rs.getString("username"),
                 rs.getString("surname"),
                 rs.getString("first_name"),

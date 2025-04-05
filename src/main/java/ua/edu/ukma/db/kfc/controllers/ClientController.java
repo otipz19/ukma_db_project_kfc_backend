@@ -19,8 +19,8 @@ public class ClientController implements ClientControllerApi {
     }
 
     @Override
-    public Response getClientById(Integer clientId) {
-        return Response.ok(clientService.getClient(clientId)).build();
+    public Response getClientByUserId(Integer userId) {
+        return Response.ok(clientService.getClientByUserId(userId)).build();
     }
 
     @Override

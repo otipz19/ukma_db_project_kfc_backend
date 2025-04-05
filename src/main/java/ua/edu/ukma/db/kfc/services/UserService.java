@@ -3,6 +3,7 @@ package ua.edu.ukma.db.kfc.services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.model.entities.UserEntity;
 import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
@@ -41,7 +42,7 @@ public class UserService {
 
     public UserDto getCurrent() {
         SecurityContext context = securityContextHolder.getContext();
-        UserEntity user = repository.findByUsername(context.getUsername()).orElseThrow();
+        UserEntity user = repository.findByUsername(context.getUsername()).orElseThrow(() -> new NotAuthorizedException("Bearer"));
         return mapper.toResponse(user);
     }
 
