@@ -4,10 +4,8 @@ import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
 import ua.edu.ukma.db.kfc.transactions.Transaction;
 import ua.edu.ukma.db.kfc.transactions.TransactionIsolation;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.List;
 
 public class DefaultTransaction implements Transaction {
 
@@ -54,6 +52,24 @@ public class DefaultTransaction implements Transaction {
         catch (Exception e) {
             throw new DataBaseException(e);
         }
+    }
+
+    @Override
+    public Array createArrayOf(List<?> elements, String typeName) {
+        try {
+            return connection.createArrayOf(typeName, elements.toArray());
+        }
+        catch (NullPointerException e) {
+            throw new DataBaseException("Transaction is closed");
+        }
+        catch (Exception e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    @Override
+    public <T> Array createArrayOf(List<T> elements, Class<T> type) {
+        return createArrayOf(elements, type.getSimpleName());
     }
 
     @Override

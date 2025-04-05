@@ -149,7 +149,6 @@ components:
           properties:
             username:
               type: string
-              format: email
             password:
               type: string
           required:
@@ -165,7 +164,6 @@ components:
               type: integer
             username:
               type: string
-              format: email
             bonuses:
               type: integer
           required:

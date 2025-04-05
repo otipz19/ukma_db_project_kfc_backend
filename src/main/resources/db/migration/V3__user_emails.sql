@@ -1,0 +1,4 @@
+CREATE TABLE user_emails (
+    email VARCHAR(320) PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);

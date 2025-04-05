@@ -1,0 +1,69 @@
+openapi: 3.0.0
+info:
+  description: User Emails Service
+  version: '1.0'
+  title: User Emails Service
+
+tags:
+  - name: user-emails-controller
+    description: User Emails Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/user/{userId}/emails:
+    parameters:
+      - in: path
+        name: userId
+        required: true
+        schema:
+          type: integer
+
+    get:
+      operationId: getUserEmails
+      tags:
+        - user-emails-controller
+      summary: Get user emails
+      responses:
+        200:
+          description: User emails
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: email
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    put:
+      operationId: setUserEmails
+      tags:
+        - user-emails-controller
+      summary: Set user emails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                format: email
+      responses:
+        204:
+          description: User emails were set
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'

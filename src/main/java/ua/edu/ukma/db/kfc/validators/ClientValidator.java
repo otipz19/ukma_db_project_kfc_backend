@@ -28,14 +28,14 @@ public class ClientValidator extends BaseValidator<ClientEntity> {
     @Override
     public void validForUpdate(ClientEntity entity) {
         if (actionForThemself(entity)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+        securityContextHolder.requireRole(RoleEnum.ADMIN);
         validateData(entity);
     }
 
     @Override
     public void validForDelete(ClientEntity entity) {
         if (actionForThemself(entity)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+        securityContextHolder.requireRole(RoleEnum.ADMIN);
     }
 
     private boolean actionForThemself(ClientEntity entity) {
