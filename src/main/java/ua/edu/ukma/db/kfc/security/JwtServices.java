@@ -36,7 +36,7 @@ public class JwtServices {
         DecodedJWT jwt = JWT.require(Algorithm.HMAC512(securityConstants.getTokenSecret().getBytes()))
                 .withClaimPresence(SecurityConstants.ROLE_CLAIM)
                 .build()
-                .verify(token.replace(securityConstants.getTokenPrefix(), ""));
+                .verify(removePrefix(token));
         return new SecurityContext(jwt.getSubject(), enumsMapper.map(jwt.getClaim(SecurityConstants.ROLE_CLAIM).asString()));
     }
 
@@ -51,7 +51,11 @@ public class JwtServices {
     public String verifyRefreshToken(String token) throws JWTVerificationException {
         DecodedJWT jwt = JWT.require(Algorithm.HMAC512(securityConstants.getTokenSecret().getBytes()))
                 .build()
-                .verify(token.replace(securityConstants.getTokenPrefix(), ""));
+                .verify(removePrefix(token));
         return jwt.getSubject();
+    }
+
+    private String removePrefix(String token) {
+        return token.replace(securityConstants.getTokenPrefix(), "");
     }
 }

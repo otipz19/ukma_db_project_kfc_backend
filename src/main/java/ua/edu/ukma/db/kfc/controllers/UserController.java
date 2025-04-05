@@ -16,4 +16,10 @@ public class UserController implements UserControllerApi {
     public Response getCurrentUser() {
         return Response.ok().entity(userService.getCurrent()).build();
     }
+
+    @Override
+    public Response disableUser(Integer userId) {
+        userService.disableUser(userId);
+        return Response.noContent().build();
+    }
 }

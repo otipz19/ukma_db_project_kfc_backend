@@ -29,6 +29,30 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/user/disable/{userId}:
+    post:
+      operationId: disableUser
+      tags:
+        - user-controller
+      summary: Disable user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: User was disabled
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     User:
@@ -36,7 +60,6 @@ components:
       properties:
         id:
           type: integer
-          format: int64
         email:
           type: string
         role:
