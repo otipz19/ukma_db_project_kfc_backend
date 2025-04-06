@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
-import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.UserEmailsRepository;
 import ua.edu.ukma.db.kfc.repositories.UserRepository;
 import ua.edu.ukma.db.kfc.security.SecurityContextHolder;
@@ -23,12 +23,12 @@ public class UserEmailsValidator {
 
     public void validForViewEmails(int userId) {
         if (actionForThemself(userId)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER);
     }
 
     public void validForSetEmails(int userId, List<String> emails) {
         if (actionForThemself(userId)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
         if (userEmailsRepository.existsAnotherUserWithEmail(userId, emails))
             throw new BadRequestException("This email is already in use");
     }

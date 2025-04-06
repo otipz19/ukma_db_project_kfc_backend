@@ -6,7 +6,7 @@ import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.mappers.ClientMapper;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
-import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.ClientRepository;
 import ua.edu.ukma.db.kfc.rest.model.ClientDto;
 import ua.edu.ukma.db.kfc.rest.model.ClientRegistrationDto;
@@ -30,7 +30,7 @@ public class ClientService {
     private ClientValidator validator;
 
     public int registerClient(ClientRegistrationDto clientRegistrationDto) {
-        int userId = userService.create(clientRegistrationDto.getUsername(), clientRegistrationDto.getPassword(), RoleEnum.CLIENT);
+        int userId = userService.create(clientRegistrationDto.getUsername(), clientRegistrationDto.getPassword(), UserRoleEnum.CLIENT);
         ClientEntity client = new ClientEntity();
         client.setUserId(userId);
         mapper.toEntity(clientRegistrationDto, client);

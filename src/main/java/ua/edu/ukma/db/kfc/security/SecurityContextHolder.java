@@ -3,7 +3,7 @@ package ua.edu.ukma.db.kfc.security;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
-import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 
 @RequestScoped
 public class SecurityContextHolder {
@@ -24,16 +24,16 @@ public class SecurityContextHolder {
         return context;
     }
 
-    public boolean hasRole(RoleEnum... roles) {
+    public boolean hasRole(UserRoleEnum... roles) {
         authorized();
-        for (RoleEnum role : roles) {
+        for (UserRoleEnum role : roles) {
             if (context.getUserRole() == role)
                 return true;
         }
         return false;
     }
 
-    public void requireRole(RoleEnum... roles) {
+    public void requireRole(UserRoleEnum... roles) {
         if (!hasRole(roles))
             throw new ForbiddenException("Forbidden");
     }

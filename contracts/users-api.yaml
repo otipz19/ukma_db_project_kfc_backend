@@ -55,6 +55,15 @@ paths:
 
 components:
   schemas:
+    UserRole:
+      type: string
+      enum:
+        - ADMIN
+        - CLIENT
+        - MANAGER
+        - COOK
+        - CASHIER
+
     User:
       type: object
       properties:
@@ -63,7 +72,7 @@ components:
         username:
           type: string
         role:
-          type: string
+          $ref: '#/components/schemas/UserRole'
       required:
         - id
         - username

@@ -60,7 +60,7 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
-            stmt.setString(3, enumsMapper.map(user.getRole()));
+            stmt.setString(3, enumsMapper.mapToSting(user.getRole()));
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) throw new DataBaseException("Failed to save user");
                 return rs.getInt(1);

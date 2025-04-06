@@ -2,7 +2,7 @@ package ua.edu.ukma.db.kfc.validators;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
-import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 
 import java.util.List;
 
@@ -12,12 +12,12 @@ public class ClientValidator extends BaseValidator<ClientEntity> {
     @Override
     public void validForView(ClientEntity entity) {
         if (actionForThemself(entity)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER);
     }
 
     @Override
     public void validForView(List<ClientEntity> userEntities) {
-        securityContextHolder.requireRole(RoleEnum.ADMIN, RoleEnum.MANAGER);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER);
     }
 
     @Override
@@ -28,14 +28,14 @@ public class ClientValidator extends BaseValidator<ClientEntity> {
     @Override
     public void validForUpdate(ClientEntity entity) {
         if (actionForThemself(entity)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
         validateData(entity);
     }
 
     @Override
     public void validForDelete(ClientEntity entity) {
         if (actionForThemself(entity)) return;
-        securityContextHolder.requireRole(RoleEnum.ADMIN);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
     }
 
     private boolean actionForThemself(ClientEntity entity) {

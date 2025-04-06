@@ -6,7 +6,7 @@ import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.model.entities.UserEntity;
-import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.UserRepository;
 import ua.edu.ukma.db.kfc.mappers.UserMapper;
 import ua.edu.ukma.db.kfc.rest.model.UserDto;
@@ -31,7 +31,7 @@ public class UserService {
     @Inject
     private SecurityContextHolder securityContextHolder;
 
-    public int create(String username, String password, RoleEnum role) {
+    public int create(String username, String password, UserRoleEnum role) {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPasswordHash(passwordServices.hash(password));

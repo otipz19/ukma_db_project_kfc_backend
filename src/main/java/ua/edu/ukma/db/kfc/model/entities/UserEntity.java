@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ua.edu.ukma.db.kfc.model.enums.RoleEnum;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 
 @Data
 @AllArgsConstructor
@@ -24,7 +24,7 @@ public class UserEntity {
     private String passwordHash;
 
     @NotNull
-    private RoleEnum role;
+    private UserRoleEnum role;
 
     private boolean isActive;
 }
