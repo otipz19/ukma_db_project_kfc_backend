@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  title: Ingredient Service
+  description: Ingredient Service
+  version: '1.0'
+
+tags:
+  - name: ingredient-controller
+    description: Ingredient Controller
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/ingredients:
+    get:
+      operationId: getAllIngredients
+      tags:
+        - ingredient-controller
+      summary: Get all ingredients
+      responses:
+        200:
+          description: List of all ingredients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ingredient'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    post:
+      operationId: createIngredient
+      tags:
+        - ingredient-controller
+      summary: Create new ingredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientUpsert'
+      responses:
+        201:
+          description: Ingredient created
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/ingredients/{ingredientId}:
+    get:
+      operationId: getIngredientById
+      tags:
+        - ingredient-controller
+      summary: Get ingredient by ID
+      parameters:
+        - name: ingredientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Ingredient found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateIngredient
+      tags:
+        - ingredient-controller
+      summary: Update ingredient by ID
+      parameters:
+        - name: ingredientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientUpsert'
+      responses:
+        204:
+          description: Ingredient updated
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    delete:
+      operationId: deleteIngredient
+      tags:
+        - ingredient-controller
+      summary: Delete ingredient by ID
+      parameters:
+        - name: ingredientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Ingredient deleted
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/ingredients/by-title/{title}:
+    get:
+      operationId: getIngredientByTitle
+      tags:
+        - ingredient-controller
+      summary: Get ingredient by title
+      parameters:
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Ingredient found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 64
+        energeticValue:
+          type: integer
+          minimum: 0
+        weight:
+          type: integer
+          minimum: 0
+        price:
+          type: number
+          minimum: 0
+        isActual:
+          type: boolean
+          readOnly: true
+      required:
+        - title
+        - energeticValue
+        - weight
+        - price
+
+    IngredientUpsert:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 64
+        energeticValue:
+          type: integer
+          minimum: 0
+        weight:
+          type: integer
+          minimum: 0
+        price:
+          type: number
+          minimum: 0
+      required:
+        - title
+        - energeticValue
+        - weight
+        - price
