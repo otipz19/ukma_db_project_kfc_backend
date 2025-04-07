@@ -57,16 +57,15 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
 
     public Integer save(IngredientEntity entity) {
         String sql = """
-            INSERT INTO ingredient (title, energetic_value, weight, price, is_actual)
-            VALUES (?, ?, ?, ?, ?)
-            RETURNING id
-            """;
+        INSERT INTO ingredient (title, energetic_value, weight, price)
+        VALUES (?, ?, ?, ?)
+        RETURNING id
+    """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
             stmt.setString(1, entity.getTitle());
             stmt.setInt(2, entity.getEnergeticValue());
             stmt.setInt(3, entity.getWeight());
             stmt.setBigDecimal(4, entity.getPrice());
-            stmt.setBoolean(5, true);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
                 throw new DataBaseException("Failed to save ingredient");

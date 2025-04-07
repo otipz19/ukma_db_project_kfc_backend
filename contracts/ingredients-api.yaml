@@ -175,14 +175,12 @@ components:
         price:
           type: number
           minimum: 0
-        isActual:
-          type: boolean
-          readOnly: true
       required:
         - title
         - energeticValue
         - weight
         - price
+
 
     IngredientUpsert:
       type: object
