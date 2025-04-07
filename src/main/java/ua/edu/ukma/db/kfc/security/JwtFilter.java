@@ -6,6 +6,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import ua.edu.ukma.db.kfc.configuration.SecurityConstants;
@@ -22,18 +23,27 @@ public class JwtFilter extends GenericFilter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = ((HttpServletRequest)request).getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(securityConstants.getTokenPrefix())) {
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        if (httpRequest.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS)) {
+            chain.doFilter(request, response);
             return;
         }
+
+        String header = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.startsWith(securityConstants.getTokenPrefix())) {
+            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         String token = header.replace(securityConstants.getTokenPrefix(), "");
         try {
             SecurityContext context = jwtServices.verifyToken(token);
             securityContextHolder.setContext(context);
             chain.doFilter(request, response);
         } catch (JWTVerificationException ex) {
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 }
