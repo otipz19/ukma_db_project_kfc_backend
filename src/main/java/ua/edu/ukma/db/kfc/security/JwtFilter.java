@@ -31,13 +31,12 @@ public class JwtFilter extends GenericFilter {
             return;
         }
 
-        String header = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(securityConstants.getTokenPrefix())) {
+        String token = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        if (token == null || !token.startsWith(securityConstants.getTokenPrefix())) {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        String token = header.replace(securityConstants.getTokenPrefix(), "");
         try {
             SecurityContext context = jwtServices.verifyToken(token);
             securityContextHolder.setContext(context);
