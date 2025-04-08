@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class IngredientEntity {
 
-    private Integer id;
+    private int id;
 
     @NotBlank
     @Size(min = 1, max = 64)

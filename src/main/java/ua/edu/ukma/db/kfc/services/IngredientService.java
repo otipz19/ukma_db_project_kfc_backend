@@ -7,13 +7,12 @@ import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.mappers.IngredientMapper;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 import ua.edu.ukma.db.kfc.rest.model.IngredientDto;
-import ua.edu.ukma.db.kfc.rest.model.IngredientUpsertDto;
 import ua.edu.ukma.db.kfc.repositories.IngredientRepository;
+import ua.edu.ukma.db.kfc.rest.model.UpdateIngredientDto;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.IngredientValidator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Interceptors(TransactionInterceptor.class)
@@ -27,45 +26,45 @@ public class IngredientService {
     private IngredientMapper mapper;
 
     public List<IngredientDto> getAllIngredients() {
-        return repository.findAll().stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
+        List<IngredientEntity> ingredients = repository.findAll();
+        validator.validForView(ingredients);
+        return mapper.toResponse(ingredients);
     }
 
     public IngredientDto getIngredientById(int id) {
         IngredientEntity entity = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ingredient with id " + id + " not found"));
+        validator.validForView(entity);
         return mapper.toResponse(entity);
     }
 
     public IngredientDto getIngredientByTitle(String title) {
         IngredientEntity entity = repository.findByTitle(title)
                 .orElseThrow(() -> new NotFoundException("Ingredient with title " + title + " not found"));
+        validator.validForView(entity);
         return mapper.toResponse(entity);
     }
 
-    public void createIngredient(IngredientUpsertDto dto) {
+    public int createIngredient(UpdateIngredientDto dto) {
         IngredientEntity entity = new IngredientEntity();
         mapper.toEntity(dto, entity);
         validator.validForCreate(entity);
-        repository.save(entity);
+        return repository.save(entity);
+    }
+
+    public int updateIngredient(int id, UpdateIngredientDto dto) {
+        IngredientEntity ingredient = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ingredient not found"));
+        mapper.toEntity(dto, ingredient);
+        validator.validForUpdate(ingredient);
+        repository.delete(id);
+        return repository.save(ingredient);
     }
 
     public void deleteIngredient(int id) {
-        repository.findById(id)
+        IngredientEntity entity = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ingredient not found"));
-        repository.deactivate(id);
-    }
-
-    public void updateIngredient(Integer id, IngredientUpsertDto dto) {
-        repository.findById(id)
-                .orElseThrow(NotFoundException::new);
-
-        IngredientEntity newEntity = new IngredientEntity();
-        mapper.toEntity(dto, newEntity);
-        validator.validForUpdate(newEntity);
-        repository.save(newEntity);
-
-        repository.deactivate(id);
+        validator.validForDelete(entity);
+        repository.delete(id);
     }
 }

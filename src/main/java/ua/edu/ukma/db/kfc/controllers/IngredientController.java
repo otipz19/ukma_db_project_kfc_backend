@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.services.IngredientService;
 import ua.edu.ukma.db.kfc.rest.api.IngredientControllerApi;
-import ua.edu.ukma.db.kfc.rest.model.IngredientUpsertDto;
+import ua.edu.ukma.db.kfc.rest.model.UpdateIngredientDto;
 
 @ApplicationScoped
 public class IngredientController implements IngredientControllerApi {
@@ -29,15 +29,13 @@ public class IngredientController implements IngredientControllerApi {
     }
 
     @Override
-    public Response updateIngredient(Integer ingredientId, IngredientUpsertDto updateIngredientDto) {
-        ingredientService.updateIngredient(ingredientId, updateIngredientDto);
-        return Response.noContent().build();
+    public Response createIngredient(UpdateIngredientDto dto) {
+        return Response.ok(ingredientService.createIngredient(dto)).build();
     }
 
     @Override
-    public Response createIngredient(IngredientUpsertDto dto) {
-        ingredientService.createIngredient(dto);
-        return Response.status(Response.Status.CREATED).build();
+    public Response updateIngredient(Integer ingredientId, UpdateIngredientDto updateIngredientDto) {
+        return Response.ok(ingredientService.updateIngredient(ingredientId, updateIngredientDto)).build();
     }
 
     @Override

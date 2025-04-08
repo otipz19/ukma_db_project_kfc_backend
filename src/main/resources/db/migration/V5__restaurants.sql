@@ -7,5 +7,5 @@ CREATE TABLE restaurants (
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 ALTER TABLE restaurants
-ADD CONSTRAINT unique_address EXCLUDE USING GIST (address WITH =)
+ADD CONSTRAINT restaurants_unique_address EXCLUDE USING GIST (address WITH =)
 WHERE (is_deleted = FALSE);

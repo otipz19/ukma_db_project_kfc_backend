@@ -56,13 +56,12 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
                 FROM clients LEFT JOIN users ON clients.user_id = users.id
                 WHERE is_deleted = false
                 """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                List<ClientEntity> clients = new ArrayList<>();
-                while (rs.next())
-                    clients.add(map(rs));
-                return clients;
-            }
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            List<ClientEntity> clients = new ArrayList<>();
+            while (rs.next())
+                clients.add(map(rs));
+            return clients;
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }

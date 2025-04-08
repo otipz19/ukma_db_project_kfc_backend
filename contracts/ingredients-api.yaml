@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: Ingredient Service
-  description: Ingredient Service
   version: '1.0'
+  description: Ingredient Service
 
 tags:
   - name: ingredient-controller
@@ -12,7 +12,7 @@ servers:
   - url: http://localhost:8080
 
 paths:
-  /api/ingredients:
+  /api/ingredient:
     get:
       operationId: getAllIngredients
       tags:
@@ -42,32 +42,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IngredientUpsert'
+              $ref: '#/components/schemas/UpdateIngredient'
       responses:
-        201:
-          description: Ingredient created
+        200:
+          description: Id of the created ingredient
+          content:
+            application/json:
+              schema:
+                type: integer
         400:
           $ref: 'common-types.yaml#/components/responses/BadRequest'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/ingredients/{ingredientId}:
+  /api/ingredient/{ingredientId}:
+    parameters:
+      - name: ingredientId
+        in: path
+        required: true
+        schema:
+          type: integer
+
     get:
       operationId: getIngredientById
       tags:
         - ingredient-controller
-      summary: Get ingredient by ID
-      parameters:
-        - name: ingredientId
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Get ingredient by id
       responses:
         200:
-          description: Ingredient found
+          description: Ingredient with corresponding id
           content:
             application/json:
               schema:
@@ -83,28 +90,28 @@ paths:
       operationId: updateIngredient
       tags:
         - ingredient-controller
-      summary: Update ingredient by ID
-      parameters:
-        - name: ingredientId
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Update ingredient by id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IngredientUpsert'
+              $ref: '#/components/schemas/UpdateIngredient'
       responses:
-        204:
-          description: Ingredient updated
+        200:
+          description: Id of the updated ingredient
+          content:
+            application/json:
+              schema:
+                type: integer
         400:
           $ref: 'common-types.yaml#/components/responses/BadRequest'
         404:
           $ref: 'common-types.yaml#/components/responses/NotFound'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
@@ -112,13 +119,7 @@ paths:
       operationId: deleteIngredient
       tags:
         - ingredient-controller
-      summary: Delete ingredient by ID
-      parameters:
-        - name: ingredientId
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Delete ingredient by id
       responses:
         204:
           description: Ingredient deleted
@@ -126,10 +127,12 @@ paths:
           $ref: 'common-types.yaml#/components/responses/NotFound'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/ingredients/by-title/{title}:
+  /api/ingredient/by-title/{title}:
     get:
       operationId: getIngredientByTitle
       tags:
@@ -143,7 +146,7 @@ paths:
             type: string
       responses:
         200:
-          description: Ingredient found
+          description: Ingredient with corresponding title
           content:
             application/json:
               schema:
@@ -157,48 +160,29 @@ paths:
 
 components:
   schemas:
+    UpdateIngredient:
+      type: object
+      properties:
+        title:
+          type: string
+        energeticValue:
+          type: integer
+        weight:
+          type: integer
+        price:
+          type: number
+      required:
+        - title
+        - energeticValue
+        - weight
+        - price
+
     Ingredient:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        title:
-          type: string
-          maxLength: 64
-        energeticValue:
-          type: integer
-          minimum: 0
-        weight:
-          type: integer
-          minimum: 0
-        price:
-          type: number
-          minimum: 0
-      required:
-        - title
-        - energeticValue
-        - weight
-        - price
-
-
-    IngredientUpsert:
-      type: object
-      properties:
-        title:
-          type: string
-          maxLength: 64
-        energeticValue:
-          type: integer
-          minimum: 0
-        weight:
-          type: integer
-          minimum: 0
-        price:
-          type: number
-          minimum: 0
-      required:
-        - title
-        - energeticValue
-        - weight
-        - price
+      allOf:
+        - $ref: '#/components/schemas/UpdateIngredient'
+        - type: object
+          properties:
+            id:
+              type: integer
+          required:
+            - id

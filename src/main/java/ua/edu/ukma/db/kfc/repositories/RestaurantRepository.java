@@ -38,13 +38,12 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
                 FROM restaurants
                 WHERE is_deleted = false
                 """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                List<RestaurantEntity> restaurants = new ArrayList<>();
-                while (rs.next())
-                    restaurants.add(map(rs));
-                return restaurants;
-            }
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            List<RestaurantEntity> restaurants = new ArrayList<>();
+            while (rs.next())
+                restaurants.add(map(rs));
+            return restaurants;
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }

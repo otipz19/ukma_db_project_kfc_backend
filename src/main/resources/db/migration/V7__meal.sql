@@ -1,11 +1,15 @@
-CREATE TABLE meal (
+CREATE TABLE meals (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(64) NOT NULL UNIQUE,
+    title VARCHAR(64) NOT NULL,
     additional_price NUMERIC(10, 2) NOT NULL,
     description VARCHAR(512) NOT NULL,
     recipe VARCHAR(1024) NOT NULL,
     energetic_value INTEGER NOT NULL,
     weight INTEGER NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+    is_actual BOOLEAN NOT NULL DEFAULT TRUE
 );
+
+ALTER TABLE meals
+ADD CONSTRAINT meals_unique_title EXCLUDE USING GIST (title WITH =)
+WHERE (is_actual = TRUE);
