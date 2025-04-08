@@ -47,7 +47,7 @@ public class IngredientService {
     public void createIngredient(IngredientUpsertDto dto) {
         IngredientEntity entity = new IngredientEntity();
         mapper.toEntity(dto, entity);
-        validator.createValidate(entity);
+        validator.validForCreate(entity);
         repository.save(entity);
     }
 
@@ -63,7 +63,7 @@ public class IngredientService {
 
         IngredientEntity newEntity = new IngredientEntity();
         mapper.toEntity(dto, newEntity);
-        validator.createValidate(newEntity);
+        validator.validForUpdate(newEntity);
         repository.save(newEntity);
 
         repository.deactivate(id);

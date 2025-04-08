@@ -12,15 +12,20 @@ public class IngredientValidator extends BaseValidator<IngredientEntity>{
     @Inject
     private IngredientRepository ingredientRepository;
 
-    public void validate(IngredientEntity entity) {
-        validateData(entity);
-    }
-
-    public void createValidate(IngredientEntity entity) {
+    @Override
+    public void validForCreate(IngredientEntity entity) {
+        securityContextHolder.authorized();
         validateData(entity);
         ingredientRepository.findByTitle(entity.getTitle())
                 .ifPresent(i -> {
                     throw new BadRequestException("Ingredient with this title already exists");
                 });
+    }
+    @Override
+    public void validForUpdate(IngredientEntity entity) {
+        securityContextHolder.authorized();
+        validateData(entity);
+        ingredientRepository.findById(entity.getId())
+                .orElseThrow(() -> new BadRequestException("Ingredient with this id does not exist"));
     }
 }
