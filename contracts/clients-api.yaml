@@ -98,6 +98,8 @@ paths:
       responses:
         204:
           description: Client was updated
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:

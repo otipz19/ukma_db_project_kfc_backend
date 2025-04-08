@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  description: Restaurant Service
+  version: '1.0'
+  title: Restaurant Service
+
+tags:
+  - name: restaurant-controller
+    description: Restaurant Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/restaurant:
+    get:
+      operationId: getAllRestaurants
+      tags:
+        - restaurant-controller
+      summary: Get all restaurants
+      responses:
+        200:
+          description: List of restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurant'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    post:
+      operationId: createRestaurant
+      tags:
+        - restaurant-controller
+      summary: Create a new restaurant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRestaurant'
+      responses:
+        200:
+          description: Id of the restaurant
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/restaurant/{restaurantId}:
+    parameters:
+      - in: path
+        name: restaurantId
+        required: true
+        schema:
+          type: integer
+
+    get:
+      operationId: getRestaurantById
+      tags:
+        - restaurant-controller
+      summary: Get restaurant by id
+      responses:
+        200:
+          description: Restaurant with corresponding id
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Restaurant'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateRestaurantById
+      tags:
+        - restaurant-controller
+      summary: Update restaurant by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRestaurant'
+      responses:
+        204:
+          description: Restaurant was updated
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    delete:
+      operationId: deleteRestaurantById
+      tags:
+        - restaurant-controller
+      summary: Delete restaurant by id
+      responses:
+        204:
+          description: Restaurant was deleted
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    UpdateRestaurant:
+      type: object
+      properties:
+        address:
+          type: string
+      required:
+        - address
+
+    Restaurant:
+      allOf:
+        - $ref: '#/components/schemas/UpdateRestaurant'
+        - type: object
+          properties:
+            id:
+              type: integer
+          required:
+            - id
