@@ -5,6 +5,12 @@ components:
 
     BadRequest:
       description: Invalid Parameters
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
 
     NotFound:
       description: The specified resource was not found

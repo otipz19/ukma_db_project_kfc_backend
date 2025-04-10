@@ -32,15 +32,13 @@ public class IngredientService {
     }
 
     public IngredientDto getIngredientById(int id) {
-        IngredientEntity entity = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ingredient with id " + id + " not found"));
+        IngredientEntity entity = repository.findById(id).orElseThrow(NotFoundException::new);
         validator.validForView(entity);
         return mapper.toResponse(entity);
     }
 
     public IngredientDto getIngredientByTitle(String title) {
-        IngredientEntity entity = repository.findByTitle(title)
-                .orElseThrow(() -> new NotFoundException("Ingredient with title " + title + " not found"));
+        IngredientEntity entity = repository.findByTitle(title).orElseThrow(NotFoundException::new);
         validator.validForView(entity);
         return mapper.toResponse(entity);
     }
@@ -53,8 +51,7 @@ public class IngredientService {
     }
 
     public int updateIngredient(int id, UpdateIngredientDto dto) {
-        IngredientEntity ingredient = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ingredient not found"));
+        IngredientEntity ingredient = repository.findById(id).orElseThrow(NotFoundException::new);
         mapper.toEntity(dto, ingredient);
         validator.validForUpdate(ingredient);
         repository.delete(id);
@@ -62,8 +59,7 @@ public class IngredientService {
     }
 
     public void deleteIngredient(int id) {
-        IngredientEntity entity = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ingredient not found"));
+        IngredientEntity entity = repository.findById(id).orElseThrow(NotFoundException::new);
         validator.validForDelete(entity);
         repository.delete(id);
     }

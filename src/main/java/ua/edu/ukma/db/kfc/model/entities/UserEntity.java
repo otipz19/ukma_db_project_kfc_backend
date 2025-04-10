@@ -15,15 +15,15 @@ public class UserEntity {
 
     private int id;
 
-    @NotBlank
-    @Size(min = 1, max = 320)
+    @NotBlank(message = "error.user.username.blank")
+    @Size(min = 1, max = 320, message = "error.user.username.size")
     private String username;
 
-    @NotBlank
-    @Size(min = 1, max = 250)
+    @NotBlank(message = "error.user.password-hash.blank")
+    @Size(min = 1, max = 250, message = "error.user.password-hash.size")
     private String passwordHash;
 
-    @NotNull
+    @NotNull(message = "error.user.role.null")
     private UserRoleEnum role;
 
     private boolean isActive;

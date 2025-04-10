@@ -2,7 +2,7 @@ package ua.edu.ukma.db.kfc.validators;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
+import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.RestaurantEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
@@ -18,7 +18,7 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);
         validateData(entity);
         if (restaurantRepository.findIdByAddress(entity.getAddress()).isPresent())
-            throw new BadRequestException("Restaurant with this address already exists");
+            throw new ValidationException("error.restaurant.address.duplicate");
     }
 
     @Override
@@ -29,7 +29,7 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
                 .map(id -> id != entity.getId())
                 .orElse(false);
         if (addressIsOccupied)
-            throw new BadRequestException("Restaurant with this address already exists");
+            throw new ValidationException("error.restaurant.address.duplicate");
     }
 
     @Override

@@ -3,7 +3,7 @@ package ua.edu.ukma.db.kfc.validators;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import jakarta.ws.rs.BadRequestException;
+import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.security.SecurityContextHolder;
 
 import java.util.List;
@@ -46,6 +46,6 @@ public abstract class BaseValidator<E> implements IValidator<E> {
     protected void validateData(E entity) {
         Set<ConstraintViolation<E>> violations = validator.validate(entity);
         if (violations != null && !violations.isEmpty())
-            throw new BadRequestException("Invalid data: " + violations);
+            throw new ValidationException(violations);
     }
 }

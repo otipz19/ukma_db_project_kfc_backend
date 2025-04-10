@@ -1,9 +1,6 @@
 package ua.edu.ukma.db.kfc.model.entities;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,21 +18,22 @@ public class ClientEntity {
 
     private String username;
 
-    @NotBlank
-    @Size(min = 1, max = 64)
+    @NotBlank(message = "error.client.surname.blank")
+    @Size(min = 1, max = 64, message = "error.client.surname.size")
     private String surname;
 
-    @NotBlank
-    @Size(min = 1, max = 64)
+    @NotBlank(message = "error.client.first-name.blank")
+    @Size(min = 1, max = 64, message = "error.client.first-name.size")
     private String firstName;
 
-    @Size(min = 1, max = 64)
+    @NotBlank(message = "error.client.middle-name.blank")
+    @Size(min = 1, max = 64, message = "error.client.middle-name.size")
     private String middleName;
 
-    @Min(0)
+    @PositiveOrZero(message = "error.client.bonuses.min")
     private int bonuses;
 
-    @Past
+    @Past(message = "error.client.birth-date.future")
     private LocalDate birthDate;
 
     private boolean isDeleted;

@@ -33,7 +33,6 @@ paths:
                 type: array
                 items:
                   type: string
-                  maxLength: 15
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:
@@ -55,7 +54,6 @@ paths:
               type: array
               items:
                 type: string
-                maxLength: 15
       responses:
         204:
           description: User phones were set

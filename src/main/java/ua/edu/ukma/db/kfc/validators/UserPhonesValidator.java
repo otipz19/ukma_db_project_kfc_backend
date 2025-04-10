@@ -2,8 +2,8 @@ package ua.edu.ukma.db.kfc.validators;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.UserPhonesRepository;
 import ua.edu.ukma.db.kfc.repositories.UserRepository;
@@ -27,15 +27,22 @@ public class UserPhonesValidator {
     }
 
     public void validForSetPhones(int userId, List<String> phones) {
-        if (actionForThemself(userId)) return;
-        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+        if (!actionForThemself(userId)) securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+        phones.forEach(this::validatePhone);
         if (userPhonesRepository.existsAnotherUserWithPhone(userId, phones))
-            throw new BadRequestException("This phone is already in use");
+            throw new ValidationException("error.user.phone.in-use");
     }
 
     private boolean actionForThemself(int userId) {
         String currentUser = securityContextHolder.getContext().getUsername();
         String requestedUser = userRepository.findById(userId).orElseThrow(NotFoundException::new).getUsername();
         return currentUser.equals(requestedUser);
+    }
+
+    private void validatePhone(String phone) {
+        if (phone == null || phone.isBlank())
+            throw new ValidationException("error.user.phone.blank");
+        if (phone.length() > 15)
+            throw new ValidationException("error.user.phone.size");
     }
 }

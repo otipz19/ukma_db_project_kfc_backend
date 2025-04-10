@@ -2,8 +2,8 @@ package ua.edu.ukma.db.kfc.validators;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.UserEmailsRepository;
 import ua.edu.ukma.db.kfc.repositories.UserRepository;
@@ -27,15 +27,22 @@ public class UserEmailsValidator {
     }
 
     public void validForSetEmails(int userId, List<String> emails) {
-        if (actionForThemself(userId)) return;
-        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+        if (!actionForThemself(userId)) securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+        emails.forEach(this::validateEmail);
         if (userEmailsRepository.existsAnotherUserWithEmail(userId, emails))
-            throw new BadRequestException("This email is already in use");
+            throw new ValidationException("error.user.email.in-use");
     }
 
     private boolean actionForThemself(int userId) {
         String currentUser = securityContextHolder.getContext().getUsername();
         String requestedUser = userRepository.findById(userId).orElseThrow(NotFoundException::new).getUsername();
         return currentUser.equals(requestedUser);
+    }
+
+    private void validateEmail(String email) {
+        if (email == null || email.isBlank())
+            throw new ValidationException("error.user.email.blank");
+        if (email.length() > 320)
+            throw new ValidationException("error.user.email.size");
     }
 }

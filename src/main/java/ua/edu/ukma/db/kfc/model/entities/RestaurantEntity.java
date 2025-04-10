@@ -13,8 +13,8 @@ public class RestaurantEntity {
 
     private int id;
 
-    @NotBlank
-    @Size(max = 320)
+    @NotBlank(message = "error.restaurant.title.blank")
+    @Size(max = 320, message = "error.restaurant.title.size")
     private String address;
 
     private boolean isDeleted;

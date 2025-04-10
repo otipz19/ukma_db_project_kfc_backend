@@ -2,7 +2,7 @@ package ua.edu.ukma.db.kfc.validators;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
+import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.IngredientRepository;
@@ -19,7 +19,7 @@ public class IngredientValidator extends BaseValidator<IngredientEntity>{
         validateData(entity);
         ingredientRepository.findByTitle(entity.getTitle())
                 .ifPresent(i -> {
-                    throw new BadRequestException("Ingredient with this title already exists");
+                    throw new ValidationException("error.ingredient.title.duplicate");
                 });
     }
 
@@ -31,7 +31,7 @@ public class IngredientValidator extends BaseValidator<IngredientEntity>{
                 .map(i -> i.getId() != entity.getId())
                 .orElse(false);
         if (titleIsOccupied)
-            throw new BadRequestException("Ingredient with this title already exists");
+            throw new ValidationException("error.ingredient.title.duplicate");
     }
 
     @Override
