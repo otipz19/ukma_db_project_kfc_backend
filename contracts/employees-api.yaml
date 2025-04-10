@@ -1,0 +1,211 @@
+openapi: 3.0.0
+info:
+  description: Employee Service
+  version: '1.0'
+  title: Employee Service
+
+tags:
+  - name: employee-controller
+    description: Employee Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/employee:
+    get:
+      operationId: getAllEmployees
+      tags:
+        - employee-controller
+      summary: Get all employees
+      parameters:
+        - in: query
+          name: restaurantId
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    post:
+      operationId: hireEmployee
+      tags:
+        - employee-controller
+      summary: Hire employee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeHiring'
+      responses:
+        200:
+          description: User id of the hired employee
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/employee/{userId}:
+    parameters:
+      - in: path
+        name: userId
+        required: true
+        schema:
+          type: integer
+
+    get:
+      operationId: getEmployeeByUserId
+      tags:
+        - employee-controller
+      summary: Get employee by user id
+      responses:
+        200:
+          description: Employee with corresponding user id
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Employee'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateEmployeeByUserId
+      tags:
+        - employee-controller
+      summary: updateEmployeeByUserId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmployee'
+      responses:
+        204:
+          description: Employee was updated
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    delete:
+      operationId: fireEmployeeByUserId
+      tags:
+        - employee-controller
+      summary: Fire employee by user id
+      responses:
+        204:
+          description: Employee was fired
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    EmployeePosition:
+      type: string
+      enum:
+        - TOP_MANAGER
+        - MANAGER
+        - COOK
+        - CASHIER
+
+    UpdateEmployee:
+      type: object
+      properties:
+        passportNumber:
+          type: string
+        surname:
+          type: string
+        firstName:
+          type: string
+        middleName:
+          type: string
+        salary:
+          type: number
+        birthDate:
+          type: string
+          format: date
+      required:
+        - passportNumber
+        - surname
+        - firstName
+        - salary
+        - birthDate
+
+    EmployeeHiring:
+      allOf:
+        - $ref: '#/components/schemas/UpdateEmployee'
+        - type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+            position:
+              $ref: '#/components/schemas/EmployeePosition'
+            managerUserId:
+              type: integer
+            restaurantId:
+              type: integer
+          required:
+            - username
+            - password
+            - position
+            - managerUserId
+            - restaurantId
+
+    Employee:
+      allOf:
+        - $ref: '#/components/schemas/UpdateEmployee'
+        - type: object
+          properties:
+            userId:
+              type: integer
+            username:
+              type: string
+            position:
+              $ref: '#/components/schemas/EmployeePosition'
+            managerUserId:
+              type: integer
+            restaurantId:
+              type: integer
+          required:
+            - userId
+            - username
+            - position

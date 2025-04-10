@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ClientEntity {
 
-    private int id;
+    private Integer id;
 
     private Integer userId;
 
@@ -26,7 +26,6 @@ public class ClientEntity {
     @Size(min = 1, max = 64, message = "error.client.first-name.size")
     private String firstName;
 
-    @NotBlank(message = "error.client.middle-name.blank")
     @Size(min = 1, max = 64, message = "error.client.middle-name.size")
     private String middleName;
 

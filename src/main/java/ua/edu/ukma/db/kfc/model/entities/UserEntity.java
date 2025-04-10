@@ -13,7 +13,7 @@ import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 @NoArgsConstructor
 public class UserEntity {
 
-    private int id;
+    private Integer id;
 
     @NotBlank(message = "error.user.username.blank")
     @Size(min = 1, max = 320, message = "error.user.username.size")

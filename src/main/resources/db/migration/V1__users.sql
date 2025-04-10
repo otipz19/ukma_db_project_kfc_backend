@@ -6,5 +6,5 @@ CREATE TABLE users (
     is_active BOOL NOT NULL DEFAULT TRUE
 );
 
-INSERT INTO users(username, password_hash, role) VALUES
-('admin@kfc.com', '0', 'ADMIN');
+INSERT INTO users(id, username, password_hash, role) VALUES
+(0, 'admin@kfc.com', '0', 'ADMIN');

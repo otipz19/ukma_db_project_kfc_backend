@@ -95,7 +95,7 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
                 result.getInt("id"),
                 result.getString("username"),
                 result.getString("password_hash"),
-                enumsMapper.map(result.getString("role")),
+                enumsMapper.mapToRole(result.getString("role")),
                 result.getBoolean("is_active")
         );
     }

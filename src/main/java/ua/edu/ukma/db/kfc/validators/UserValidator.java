@@ -16,13 +16,15 @@ public class UserValidator extends BaseValidator<UserEntity> {
     @Override
     public void validForCreate(UserEntity entity) {
         validateData(entity);
+        if (entity.getRole() == UserRoleEnum.ADMIN)
+            throw new ValidationException("error.create-user.admin");
         if (userRepository.existsByEmail(entity.getUsername()))
             throw new ValidationException("error.user.username.duplicate");
     }
 
     public void validForDisableUser(UserEntity user) {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);
-        if (user.getRole().equals(UserRoleEnum.ADMIN))
+        if (user.getRole() == UserRoleEnum.ADMIN)
             throw new ValidationException("error.disable-user.admin");
     }
 }

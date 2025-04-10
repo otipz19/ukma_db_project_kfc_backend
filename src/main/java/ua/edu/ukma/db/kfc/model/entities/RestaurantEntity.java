@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RestaurantEntity {
 
-    private int id;
+    private Integer id;
 
     @NotBlank(message = "error.restaurant.title.blank")
     @Size(max = 320, message = "error.restaurant.title.size")

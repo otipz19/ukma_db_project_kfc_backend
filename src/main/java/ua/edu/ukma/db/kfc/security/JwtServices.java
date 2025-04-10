@@ -37,7 +37,7 @@ public class JwtServices {
                 .withClaimPresence(SecurityConstants.ROLE_CLAIM)
                 .build()
                 .verify(removePrefix(token));
-        return new SecurityContext(jwt.getSubject(), enumsMapper.map(jwt.getClaim(SecurityConstants.ROLE_CLAIM).asString()));
+        return new SecurityContext(jwt.getSubject(), enumsMapper.mapToRole(jwt.getClaim(SecurityConstants.ROLE_CLAIM).asString()));
     }
 
     public String generateRefreshToken(UserEntity user) {

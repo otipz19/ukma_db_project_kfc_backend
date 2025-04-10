@@ -33,14 +33,14 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         return Optional.empty();
     }
 
-    public Optional<ClientEntity> findByUserId(int user_id) {
+    public Optional<ClientEntity> findByUserId(int userId) {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
                 FROM clients LEFT JOIN users ON clients.user_id = users.id
                 WHERE user_id = ? AND is_deleted = false
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setInt(1, user_id);
+            stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return Optional.of(map(rs));
             }

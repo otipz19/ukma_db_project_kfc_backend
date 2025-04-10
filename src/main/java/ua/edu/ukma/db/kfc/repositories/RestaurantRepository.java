@@ -66,6 +66,18 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
         return Optional.empty();
     }
 
+    public boolean existsById(int id) {
+        String query = "SELECT EXISTS (SELECT * FROM restaurants WHERE id = ? AND is_deleted = false)";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     @Override
     public Integer save(RestaurantEntity entity) {
         String query = "INSERT INTO restaurants (address) VALUES (?) RETURNING id";
@@ -104,6 +116,24 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public boolean hasEmployees(int id) {
+        String query = """
+                SELECT EXISTS (
+                    SELECT *
+                    FROM employees
+                    WHERE restaurant_id = ? AND is_deleted = false
+                )
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
