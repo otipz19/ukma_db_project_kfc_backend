@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  title: Meal Ingredient Service
+  version: '1.0'
+  description: Service for managing meal–ingredient associations
+tags:
+  - name: meal-ingredient-controller
+    description: Meal Ingredient Controller
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/meal-ingredients:
+    get:
+      operationId: getAllMealIngredients
+      tags:
+        - meal-ingredient-controller
+      summary: Get all meal–ingredient associations
+      responses:
+        200:
+          description: A list of all meal–ingredient associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UpdateMealIngredient'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+    post:
+      operationId: createMealIngredient
+      tags:
+        - meal-ingredient-controller
+      summary: Create a new meal–ingredient association
+      requestBody:
+        description: Meal ingredient association object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMealIngredient'
+      responses:
+        200:
+          description: Composite key (mealId-ingredientId) of the created association
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+  /api/meal-ingredients/{mealId}/{ingredientId}:
+    get:
+      operationId: getMealIngredient
+      tags:
+        - meal-ingredient-controller
+      summary: Get a meal–ingredient association by mealId and ingredientId
+      parameters:
+        - in: path
+          name: mealId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: ingredientId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: The requested meal–ingredient association
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateMealIngredient'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+    put:
+      operationId: updateMealIngredient
+      tags:
+        - meal-ingredient-controller
+      summary: Update an existing meal–ingredient association
+      parameters:
+        - in: path
+          name: mealId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: ingredientId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Updated meal ingredient association object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMealIngredient'
+      responses:
+        200:
+          description: Composite key (mealId-ingredientId) of the updated association
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+    delete:
+      operationId: deleteMealIngredient
+      tags:
+        - meal-ingredient-controller
+      summary: Delete a meal–ingredient association by mealId and ingredientId
+      parameters:
+        - in: path
+          name: mealId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: ingredientId
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Association was successfully deleted
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+components:
+  schemas:
+    UpdateMealIngredient:
+      type: object
+      properties:
+        mealId:
+          type: integer
+        ingredientId:
+          type: integer
+        amount:
+          type: integer
+        isFixated:
+          type: boolean
+      required:
+        - mealId
+        - ingredientId
+        - amount
+        - isFixated

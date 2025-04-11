@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: Meal Service
+  version: '1.0'
+  description: Meal Service
+tags:
+  - name: meal-controller
+    description: Meal Controller
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/meal:
+    get:
+      operationId: getAllMeals
+      tags:
+        - meal-controller
+      summary: Get all meals
+      responses:
+        200:
+          description: List of all meals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Meal'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+    post:
+      operationId: createMeal
+      tags:
+        - meal-controller
+      summary: Create a new meal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeal'
+      responses:
+        200:
+          description: Id of the created meal
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+  /api/meal/{mealId}:
+    parameters:
+      - name: mealId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getMealById
+      tags:
+        - meal-controller
+      summary: Get meal by id
+      responses:
+        200:
+          description: Meal with corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meal'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+    put:
+      operationId: updateMeal
+      tags:
+        - meal-controller
+      summary: Update meal by id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeal'
+      responses:
+        200:
+          description: Id of the updated meal
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteMeal
+      tags:
+        - meal-controller
+      summary: Delete meal by id
+      responses:
+        204:
+          description: Meal deleted
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+  /api/meal/by-title/{title}:
+    get:
+      operationId: getMealByTitle
+      tags:
+        - meal-controller
+      summary: Get meal by title
+      parameters:
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Meal with corresponding title
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meal'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+components:
+  schemas:
+    UpdateMeal:
+      type: object
+      properties:
+        title:
+          type: string
+        additionalPrice:
+          type: number
+          format: double
+        description:
+          type: string
+        recipe:
+          type: string
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealIngredient'
+      required:
+        - title
+        - additionalPrice
+        - description
+        - recipe
+        - ingredients
+    MealIngredient:
+      type: object
+      properties:
+        ingredientId:
+          type: integer
+        amount:
+          type: integer
+        isFixated:
+          type: boolean
+      required:
+        - ingredientId
+        - amount
+        - isFixated
+    Meal:
+      allOf:
+        - $ref: '#/components/schemas/UpdateMeal'
+        - type: object
+          properties:
+            id:
+              type: integer
+          required:
+            - id
