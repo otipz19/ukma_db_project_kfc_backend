@@ -4,8 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ua.edu.ukma.db.kfc.mappers.MealMapper;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 import ua.edu.ukma.db.kfc.model.entities.MealEntity;
@@ -36,8 +34,6 @@ public class MealService {
     private MealValidator validator;
     @Inject
     private MealMapper mapper;
-
-    private static final Logger logger = LoggerFactory.getLogger(MealService.class);
 
 
     public List<MealDto> getAllMeals() {
@@ -86,7 +82,7 @@ public class MealService {
             link.setMealId(mealId);
             link.setIngredientId(ingDto.getIngredientId());
             link.setAmount(ingDto.getAmount());
-            link.setFixated(ingDto.getIsFixated() != null ? ingDto.getIsFixated() : false);
+            link.setFixated(ingDto.getIsFixated());
             mealIngredientRepository.save(link);
         });
 
@@ -110,7 +106,7 @@ public class MealService {
             link.setMealId(mealId);
             link.setIngredientId(ingDto.getIngredientId());
             link.setAmount(ingDto.getAmount());
-            link.setFixated(ingDto.getIsFixated() != null ? ingDto.getIsFixated() : false);
+            link.setFixated(ingDto.getIsFixated());
             mealIngredientRepository.save(link);
         });
 

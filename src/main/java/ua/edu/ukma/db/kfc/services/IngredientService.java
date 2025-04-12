@@ -94,7 +94,6 @@ public class IngredientService {
                     newAssoc.setIngredientId(updatedIngredientId);
                     newAssoc.setAmount(assoc.getAmount());
                     newAssoc.setFixated(assoc.isFixated());
-
                     mealIngredientRepository.save(newAssoc);
                 });
             });
