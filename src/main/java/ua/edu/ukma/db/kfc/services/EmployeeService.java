@@ -10,6 +10,7 @@ import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
 import ua.edu.ukma.db.kfc.repositories.EmployeeRepository;
 import ua.edu.ukma.db.kfc.rest.model.EmployeeDto;
 import ua.edu.ukma.db.kfc.rest.model.EmployeeHiringDto;
+import ua.edu.ukma.db.kfc.rest.model.EmployeePositionDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateEmployeeDto;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.EmployeeValidator;
@@ -37,8 +38,8 @@ public class EmployeeService {
         return mapper.toResponse(entity);
     }
 
-    public List<EmployeeDto> getAllEmployees(Integer restaurantId) {
-        List<EmployeeEntity> entities = repository.findAll(restaurantId);
+    public List<EmployeeDto> getAllEmployees(Integer restaurantId, List<EmployeePositionDto> positionsDtos) {
+        List<EmployeeEntity> entities = repository.findAll(restaurantId, enumsMapper.map(positionsDtos, enumsMapper::mapToRole));
         validator.validForView(entities);
         return mapper.toResponse(entities);
     }

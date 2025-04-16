@@ -8,6 +8,9 @@ import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.rest.model.EmployeePositionDto;
 import ua.edu.ukma.db.kfc.rest.model.UserRoleDto;
 
+import java.util.List;
+import java.util.function.Function;
+
 @Mapper(config = MapperConfiguration.class)
 public interface EnumsMapper {
 
@@ -28,4 +31,9 @@ public interface EnumsMapper {
     EmployeePositionDto map(EmployeePositionEnum role);
 
     EmployeePositionEnum map(EmployeePositionDto role);
+
+    default <I, O> List<O> map(List<I> list, Function<I, O> mapper) {
+        if (list == null) return List.of();
+        return list.stream().map(mapper).toList();
+    }
 }

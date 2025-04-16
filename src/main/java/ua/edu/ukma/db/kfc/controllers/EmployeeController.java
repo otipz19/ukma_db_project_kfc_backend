@@ -5,8 +5,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.EmployeeControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.EmployeeHiringDto;
+import ua.edu.ukma.db.kfc.rest.model.EmployeePositionDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateEmployeeDto;
 import ua.edu.ukma.db.kfc.services.EmployeeService;
+
+import java.util.List;
 
 @ApplicationScoped
 public class EmployeeController implements EmployeeControllerApi {
@@ -15,8 +18,8 @@ public class EmployeeController implements EmployeeControllerApi {
     private EmployeeService service;
 
     @Override
-    public Response getAllEmployees(Integer restaurantId) {
-        return Response.ok(service.getAllEmployees(restaurantId)).build();
+    public Response getAllEmployees(Integer restaurantId, List<EmployeePositionDto> positionsDtos) {
+        return Response.ok(service.getAllEmployees(restaurantId, positionsDtos)).build();
     }
 
     @Override

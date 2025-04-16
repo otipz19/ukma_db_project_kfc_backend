@@ -5,8 +5,10 @@ import jakarta.inject.Inject;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
 import ua.edu.ukma.db.kfc.mappers.EnumsMapper;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -120,7 +122,7 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
         return Optional.empty();
     }
 
-    public List<EmployeeEntity> findAll(Integer restaurantId) {
+    public List<EmployeeEntity> findAll(Integer restaurantId, List<UserRoleEnum> roles) {
         String query = """
                 SELECT e1.id, e1.user_id, u.username, e1.passport_number, e1.surname, e1.first_name, e1.middle_name,
                     e1.salary, e1.birth_date, u.role AS position, e1.manager_id, e2.user_id AS manager_user_id,
@@ -128,7 +130,9 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
                 FROM employees e1
                     LEFT JOIN users u ON e1.user_id = u.id
                     LEFT JOIN employees e2 ON e1.manager_id = e2.id
-                WHERE (? IS NULL OR e1.restaurant_id = ?) AND e1.is_deleted = false
+                WHERE (? IS NULL OR e1.restaurant_id = ?)
+                    AND (? IS NULL OR u.role = ANY (?))
+                    AND e1.is_deleted = false
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             if (restaurantId != null) {
@@ -136,8 +140,17 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
                 stmt.setInt(2, restaurantId);
             }
             else {
-                stmt.setNull(1, INTEGER);
+                stmt.setNull(1, BIT);
                 stmt.setNull(2, INTEGER);
+            }
+            if (roles != null && !roles.isEmpty()) {
+                Array array = transactionManager.currentTransaction().createArrayOf(roles, "varchar");
+                stmt.setArray(3, array);
+                stmt.setArray(4, array);
+            }
+            else {
+                stmt.setNull(3, BIT);
+                stmt.setNull(4, ARRAY);
             }
             try (ResultSet rs = stmt.executeQuery()) {
                 List<EmployeeEntity> employees = new ArrayList<>();
