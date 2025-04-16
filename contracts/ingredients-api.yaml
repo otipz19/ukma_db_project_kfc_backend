@@ -18,6 +18,14 @@ paths:
       tags:
         - ingredient-controller
       summary: Get all ingredients
+      parameters:
+        - in: query
+          name: ids
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
       responses:
         200:
           description: List of all ingredients

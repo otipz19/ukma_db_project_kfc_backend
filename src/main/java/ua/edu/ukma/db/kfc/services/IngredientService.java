@@ -27,8 +27,8 @@ public class IngredientService {
     @Inject
     private MealIngredientService mealIngredientService;
 
-    public List<IngredientDto> getAllIngredients() {
-        List<IngredientEntity> ingredients = repository.findAll();
+    public List<IngredientDto> getAllIngredients(List<Integer> ids) {
+        List<IngredientEntity> ingredients = (ids == null || ids.isEmpty()) ? repository.findAll() : repository.findByIds(ids);
         validator.validForView(ingredients);
         return mapper.toResponse(ingredients);
     }

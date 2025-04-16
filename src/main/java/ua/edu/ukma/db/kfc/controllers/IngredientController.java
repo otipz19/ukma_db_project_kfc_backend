@@ -7,6 +7,8 @@ import ua.edu.ukma.db.kfc.services.IngredientService;
 import ua.edu.ukma.db.kfc.rest.api.IngredientControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.UpdateIngredientDto;
 
+import java.util.List;
+
 @ApplicationScoped
 public class IngredientController implements IngredientControllerApi {
 
@@ -14,8 +16,8 @@ public class IngredientController implements IngredientControllerApi {
     private IngredientService ingredientService;
 
     @Override
-    public Response getAllIngredients() {
-        return Response.ok(ingredientService.getAllIngredients()).build();
+    public Response getAllIngredients(List<Integer> ids) {
+        return Response.ok(ingredientService.getAllIngredients(ids)).build();
     }
 
     @Override
