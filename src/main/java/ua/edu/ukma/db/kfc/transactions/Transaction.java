@@ -4,7 +4,7 @@ import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.List;
+import java.util.Collection;
 
 public interface Transaction {
 
@@ -12,11 +12,13 @@ public interface Transaction {
 
     PreparedStatement prepareStatement(String sql);
 
+    PreparedStatement prepareStatement(String sql, boolean returnGeneratedKeys);
+
     CallableStatement prepareCall(String sql);
 
-    Array createArrayOf(List<?> elements, String typeName);
+    Array createArrayOf(Collection<?> elements, String typeName);
 
-    <T> Array createArrayOf(List<T> elements, Class<T> type);
+    <T> Array createArrayOf(Collection<T> elements, Class<T> type);
 
     boolean isReadOnly();
 

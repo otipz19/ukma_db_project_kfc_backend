@@ -18,15 +18,19 @@ public class IngredientEntity {
     @Size(min = 1, max = 64, message = "error.ingredient.title.size")
     private String title;
 
-    @PositiveOrZero(message = "error.ingredient.energetic-value.min")
+    @Positive(message = "error.ingredient.energetic-value.min")
     private int energeticValue;
 
-    @PositiveOrZero(message = "error.ingredient.weight.min")
+    @Positive(message = "error.ingredient.weight.min")
     private int weight;
 
     @NotNull(message = "error.ingredient.price.null")
-    @DecimalMin(value = "0.0", message = "error.ingredient.price.min")
+    @DecimalMin(value = "0.1", message = "error.ingredient.price.min")
     private BigDecimal price;
 
     private boolean isActual = true;
+
+    public IngredientEntity copy() {
+        return new IngredientEntity(id, title, energeticValue, weight, price, isActual);
+    }
 }

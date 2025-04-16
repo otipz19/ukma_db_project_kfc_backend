@@ -6,6 +6,7 @@ import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,21 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
             throw new DataBaseException(e);
         }
         return Optional.empty();
+    }
+
+    public List<IngredientEntity> findByIds(Collection<Integer> ids) {
+        String sql = "SELECT * FROM ingredients WHERE id = ANY (?) AND is_actual = true";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
+            stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<IngredientEntity> result = new ArrayList<>();
+                while (rs.next())
+                    result.add(map(rs));
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
     }
 
     public Optional<IngredientEntity> findByTitle(String title) {
@@ -78,6 +94,24 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public boolean checkAllAreActualByIds(Collection<Integer> ids) {
+        String sql = """
+                SELECT NOT EXISTS (
+                    SELECT *
+                    FROM ingredients
+                    WHERE id = ANY (?) AND is_actual = false
+                )
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
+            stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }

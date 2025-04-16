@@ -5,7 +5,7 @@ import ua.edu.ukma.db.kfc.transactions.Transaction;
 import ua.edu.ukma.db.kfc.transactions.TransactionIsolation;
 
 import java.sql.*;
-import java.util.List;
+import java.util.Collection;
 
 public class DefaultTransaction implements Transaction {
 
@@ -30,8 +30,13 @@ public class DefaultTransaction implements Transaction {
 
     @Override
     public PreparedStatement prepareStatement(String sql) {
+        return prepareStatement(sql, false);
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, boolean returnGeneratedKeys) {
         try {
-            return connection.prepareStatement(sql);
+            return connection.prepareStatement(sql, returnGeneratedKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
         }
         catch (NullPointerException e) {
             throw new DataBaseException("Transaction is closed");
@@ -55,7 +60,7 @@ public class DefaultTransaction implements Transaction {
     }
 
     @Override
-    public Array createArrayOf(List<?> elements, String typeName) {
+    public Array createArrayOf(Collection<?> elements, String typeName) {
         try {
             return connection.createArrayOf(typeName, elements.toArray());
         }
@@ -68,7 +73,7 @@ public class DefaultTransaction implements Transaction {
     }
 
     @Override
-    public <T> Array createArrayOf(List<T> elements, Class<T> type) {
+    public <T> Array createArrayOf(Collection<T> elements, Class<T> type) {
         return createArrayOf(elements, type.getSimpleName());
     }
 

@@ -6,6 +6,7 @@ import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.IngredientRepository;
+import ua.edu.ukma.db.kfc.repositories.MealIngredientRepository;
 
 import java.util.Objects;
 
@@ -14,6 +15,8 @@ public class IngredientValidator extends BaseValidator<IngredientEntity>{
 
     @Inject
     private IngredientRepository ingredientRepository;
+    @Inject
+    private MealIngredientRepository mealIngredientRepository;
 
     @Override
     public void validForCreate(IngredientEntity entity) {
@@ -40,5 +43,7 @@ public class IngredientValidator extends BaseValidator<IngredientEntity>{
     @Override
     public void validForDelete(IngredientEntity entity) {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+        if (mealIngredientRepository.existsActualMealByIngredientId(entity.getId()))
+            throw new ValidationException("error.delete-ingredient.in-use");
     }
 }

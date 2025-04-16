@@ -24,6 +24,8 @@ public class IngredientService {
     private IngredientValidator validator;
     @Inject
     private IngredientMapper mapper;
+    @Inject
+    private MealIngredientService mealIngredientService;
 
     public List<IngredientDto> getAllIngredients() {
         List<IngredientEntity> ingredients = repository.findAll();
@@ -52,10 +54,16 @@ public class IngredientService {
 
     public int updateIngredient(int id, UpdateIngredientDto dto) {
         IngredientEntity ingredient = repository.findById(id).orElseThrow(NotFoundException::new);
+        IngredientEntity copy = ingredient.copy();
         mapper.toEntity(dto, ingredient);
         validator.validForUpdate(ingredient);
+
         repository.delete(id);
-        return repository.save(ingredient);
+        int newId = repository.save(ingredient);
+        ingredient.setId(newId);
+        mealIngredientService.updateMealsContainingIngredient(ingredient, copy);
+
+        return newId;
     }
 
     public void deleteIngredient(int id) {

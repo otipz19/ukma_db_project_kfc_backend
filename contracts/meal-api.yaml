@@ -1,51 +1,50 @@
 openapi: 3.0.0
 info:
-  title: Ingredient Service
+  title: Meal Service
   version: '1.0'
-  description: Ingredient Service
-
+  description: Meal Service
 tags:
-  - name: ingredient-controller
-    description: Ingredient Controller
+  - name: meal-controller
+    description: Meal Controller
 
 servers:
   - url: http://localhost:8080
 
 paths:
-  /api/ingredient:
+  /api/meal:
     get:
-      operationId: getAllIngredients
+      operationId: getAllMeals
       tags:
-        - ingredient-controller
-      summary: Get all ingredients
+        - meal-controller
+      summary: Get all meals
       responses:
         200:
-          description: List of all ingredients
+          description: List of all meals
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Ingredient'
+                  $ref: '#/components/schemas/Meal'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
     post:
-      operationId: createIngredient
+      operationId: createMeal
       tags:
-        - ingredient-controller
-      summary: Create new ingredient
+        - meal-controller
+      summary: Create a new meal
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateIngredient'
+              $ref: '#/components/schemas/UpdateMeal'
       responses:
         200:
-          description: Id of the created ingredient
+          description: Id of the created meal
           content:
             application/json:
               schema:
@@ -59,47 +58,47 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/ingredient/{ingredientId}:
+  /api/meal/{mealId}:
     parameters:
-      - name: ingredientId
+      - name: mealId
         in: path
         required: true
         schema:
           type: integer
 
     get:
-      operationId: getIngredientById
+      operationId: getMealById
       tags:
-        - ingredient-controller
-      summary: Get ingredient by id
+        - meal-controller
+      summary: Get meal by id
       responses:
         200:
-          description: Ingredient with corresponding id
+          description: Meal with corresponding id
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ingredient'
-        404:
-          $ref: 'common-types.yaml#/components/responses/NotFound'
+                $ref: '#/components/schemas/Meal'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
     put:
-      operationId: updateIngredient
+      operationId: updateMeal
       tags:
-        - ingredient-controller
-      summary: Update ingredient by id
+        - meal-controller
+      summary: Update meal by id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateIngredient'
+              $ref: '#/components/schemas/UpdateMeal'
       responses:
         200:
-          description: Id of the updated ingredient
+          description: Id of the updated meal
           content:
             application/json:
               schema:
@@ -116,15 +115,13 @@ paths:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
     delete:
-      operationId: deleteIngredient
+      operationId: deleteMeal
       tags:
-        - ingredient-controller
-      summary: Delete ingredient by id
+        - meal-controller
+      summary: Delete meal by id
       responses:
         204:
-          description: Ingredient deleted
-        400:
-          $ref: 'common-types.yaml#/components/responses/BadRequest'
+          description: Meal deleted
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:
@@ -134,12 +131,12 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/ingredient/by-title/{title}:
+  /api/meal/by-title/{title}:
     get:
-      operationId: getIngredientByTitle
+      operationId: getMealByTitle
       tags:
-        - ingredient-controller
-      summary: Get ingredient by title
+        - meal-controller
+      summary: Get meal by title
       parameters:
         - name: title
           in: path
@@ -148,43 +145,71 @@ paths:
             type: string
       responses:
         200:
-          description: Ingredient with corresponding title
+          description: Meal with corresponding title
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ingredient'
-        404:
-          $ref: 'common-types.yaml#/components/responses/NotFound'
+                $ref: '#/components/schemas/Meal'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
 components:
   schemas:
-    UpdateIngredient:
+    UpdateMeal:
       type: object
       properties:
         title:
           type: string
-        energeticValue:
-          type: integer
-        weight:
-          type: integer
-        price:
+        additionalPrice:
           type: number
+        description:
+          type: string
+        recipe:
+          type: string
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealIngredient'
       required:
         - title
-        - energeticValue
-        - weight
-        - price
+        - additionalPrice
+        - description
+        - recipe
+        - ingredients
 
-    Ingredient:
+    MealIngredient:
+      type: object
+      properties:
+        ingredientId:
+          type: integer
+        amount:
+          type: integer
+        isFixated:
+          type: boolean
+      required:
+        - ingredientId
+        - amount
+        - isFixated
+
+    Meal:
       allOf:
-        - $ref: '#/components/schemas/UpdateIngredient'
+        - $ref: '#/components/schemas/UpdateMeal'
         - type: object
           properties:
             id:
               type: integer
+            energeticValue:
+              type: integer
+            weight:
+              type: integer
+            price:
+              type: number
           required:
             - id
+            - energeticValue
+            - weight
+            - price
