@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.RestaurantEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
+import ua.edu.ukma.db.kfc.repositories.OrderRepository;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 
 import java.util.Objects;
@@ -14,6 +15,8 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
 
     @Inject
     private RestaurantRepository restaurantRepository;
+    @Inject
+    private OrderRepository orderRepository;
 
     @Override
     public void validForCreate(RestaurantEntity entity) {
@@ -42,5 +45,7 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);
         if (restaurantRepository.hasEmployees(entity.getId()))
             throw new ValidationException("error.delete-restaurant.has-employees");
+        if (orderRepository.existsByRestaurantId(entity.getId()))
+            throw new ValidationException("error.delete-restaurant.has-orders");
     }
 }

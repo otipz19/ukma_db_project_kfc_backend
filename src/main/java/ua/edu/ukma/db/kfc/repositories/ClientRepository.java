@@ -50,6 +50,23 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         return Optional.empty();
     }
 
+    public Optional<ClientEntity> findByUsername(String username) {
+        String query = """
+                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                FROM clients LEFT JOIN users ON clients.user_id = users.id
+                WHERE username = ? AND is_deleted = false
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return Optional.of(map(rs));
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return Optional.empty();
+    }
+
     public List<ClientEntity> findAll() {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
@@ -65,6 +82,23 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    public Optional<Integer> findIdByUserId(int userId) {
+        String query = """
+                SELECT id
+                FROM clients
+                WHERE user_id = ? AND is_deleted = false
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return Optional.of(rs.getInt("id"));
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return Optional.empty();
     }
 
     @Override

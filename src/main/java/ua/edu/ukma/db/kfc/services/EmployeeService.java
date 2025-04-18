@@ -44,6 +44,11 @@ public class EmployeeService {
         return mapper.toResponse(entities);
     }
 
+    public Integer getIdByUserId(Integer userId) {
+        if (userId == null) return null;
+        return repository.findIdByUserId(userId).orElseThrow(NotFoundException::new);
+    }
+
     public int hireEmployee(EmployeeHiringDto employeeHiringDto) {
         int userId = userService.create(employeeHiringDto.getUsername(), employeeHiringDto.getPassword(),
                 enumsMapper.mapToRole(employeeHiringDto.getPosition()));
@@ -51,7 +56,7 @@ public class EmployeeService {
         employee.setUserId(userId);
         employee.setPosition(enumsMapper.map(employeeHiringDto.getPosition()));
         employee.setManagerUserId(employeeHiringDto.getManagerUserId());
-        employee.setManagerId(repository.findIdByUserId(employeeHiringDto.getManagerUserId()).orElse(null));
+        employee.setManagerId(getIdByUserId(employeeHiringDto.getManagerUserId()));
         employee.setRestaurantId(employeeHiringDto.getRestaurantId());
         mapper.toEntity(employeeHiringDto, employee);
         validator.validForCreate(employee);

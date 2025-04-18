@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  description: Order Service
+  version: '1.0'
+  title: Order Service
+
+tags:
+  - name: order-controller
+    description: Order Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/order:
+    post:
+      operationId: createOrder
+      tags:
+        - order-controller
+      summary: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrder'
+      responses:
+        200:
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/order/{orderId}:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema:
+          type: integer
+
+    get:
+      operationId: getOrderById
+      tags:
+        - order-controller
+      summary: Get order by its id
+      responses:
+        200:
+          description: Order with corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    BaseOrder:
+      type: object
+      properties:
+        restaurantId:
+          type: integer
+        employeeUserId:
+          type: integer
+        clientUserId:
+          type: integer
+      required:
+        - restaurantId
+
+    CreateOrder:
+      allOf:
+        - $ref: '#/components/schemas/BaseOrder'
+        - type: object
+          properties:
+            clientMeals:
+              type: array
+              items: # TODO
+                type: object
+                additionalProperties: true
+          required:
+            - clientMeals
+
+    Order:
+      allOf:
+        - $ref: '#/components/schemas/BaseOrder'
+        - type: object
+          properties:
+            id:
+              type: integer
+            cost:
+              type: number
+            dateCreated:
+              type: string
+              format: date-time
+            isCompleted:
+              type: boolean
+            clientMealsIds:
+              type: array
+              items:
+                type: integer
+          required:
+            - id
+            - cost
+            - dateCreated
+            - isCompleted
+            - clientMealsIds

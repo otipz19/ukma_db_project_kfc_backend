@@ -39,6 +39,11 @@ public class ClientService {
         return userId;
     }
 
+    public Integer getIdByUserId(Integer userId) {
+        if (userId == null) return null;
+        return repository.findIdByUserId(userId).orElseThrow(NotFoundException::new);
+    }
+
     public ClientDto getClientByUserId(int userId) {
         ClientEntity entity = repository.findByUserId(userId).orElseThrow(NotFoundException::new);
         validator.validForView(entity);

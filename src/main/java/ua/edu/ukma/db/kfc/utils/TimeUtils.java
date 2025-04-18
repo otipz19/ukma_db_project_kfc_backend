@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import lombok.experimental.UtilityClass;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.*;
 
 @UtilityClass
@@ -39,5 +40,17 @@ public class TimeUtils {
         return localDate == null
                 ? null
                 : Date.valueOf(localDate);
+    }
+
+    public LocalDateTime mapToLocalDateTime(@Nullable final Timestamp sqlTimestamp) {
+        return sqlTimestamp == null
+                ? null
+                : sqlTimestamp.toLocalDateTime();
+    }
+
+    public Timestamp mapToSqlTimestamp(@Nullable final LocalDateTime localDateTime) {
+        return localDateTime == null
+                ? null
+                : Timestamp.valueOf(localDateTime);
     }
 }
