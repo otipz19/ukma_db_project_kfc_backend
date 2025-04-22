@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  title: Client Meal Service
+  version: '1.0'
+  description: API for managing client meals and their ingredients
+tags:
+  - name: client-meal-controller
+    description: Client Meal Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/client-meal:
+    get:
+      operationId: getAllClientMeals
+      tags:
+        - client-meal-controller
+      summary: Get all client meals
+      responses:
+        200:
+          description: List of all client meals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClientMeal'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    post:
+      operationId: createClientMeal
+      tags:
+        - client-meal-controller
+      summary: Create a new client meal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientMeal'
+      responses:
+        200:
+          description: Id of the created client meal
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/client-meal/{clientMealId}:
+    parameters:
+      - name: clientMealId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      operationId: getClientMealById
+      tags:
+        - client-meal-controller
+      summary: Get a client meal by its id
+      responses:
+        200:
+          description: Client meal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientMeal'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    delete:
+      operationId: deleteClientMeal
+      tags:
+        - client-meal-controller
+      summary: Delete a client meal
+      responses:
+        204:
+          description: Client meal deleted
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    CreateClientMeal:
+      type: object
+      properties:
+        mealId:
+          type: integer
+        orderId:
+          type: integer
+        amountInOrder:
+          type: integer
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientMealIngredient'
+      required:
+        - mealId
+        - orderId
+        - amountInOrder
+
+    ClientMeal:
+      allOf:
+        - $ref: '#/components/schemas/CreateClientMeal'
+        - type: object
+          properties:
+            id:
+              type: integer
+            energeticValue:
+              type: integer
+            weight:
+              type: integer
+            price:
+              type: number
+          required:
+            - id
+            - energeticValue
+            - weight
+            - price
+
+    ClientMealIngredient:
+      type: object
+      properties:
+        ingredientId:
+          type: integer
+        clientMealId:
+          type: integer
+        amount:
+          type: integer
+      required:
+        - ingredientId
+        - amount
+        - clientMealId
