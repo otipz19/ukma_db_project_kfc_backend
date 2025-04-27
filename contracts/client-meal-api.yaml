@@ -146,10 +146,9 @@ components:
         ingredientId:
           type: integer
         clientMealId:
-          type: integer
+            type: integer
         amount:
           type: integer
       required:
         - ingredientId
         - amount
-        - clientMealId

@@ -24,8 +24,6 @@ public interface ClientMealMapper {
     }
 
     @Mapping(target = "id", ignore = true)
-    void toEntity(CreateClientMealDto dto, @MappingTarget ClientMealDto entity);
-    @Mapping(target = "id", ignore = true)
     void toEntity(CreateClientMealDto dto, @MappingTarget ClientMealEntity entity);
 
 }

@@ -18,14 +18,12 @@ public class ClientMealController implements ClientMealControllerApi {
 
     @Override
     public Response getAllClientMeals() {
-        List<ClientMealDto> dtos = clientMealService.getAllMeals();
-        return Response.ok(dtos).build();
+        return Response.ok(clientMealService.getAllMeals()).build();
     }
 
     @Override
     public Response getClientMealById(Integer id) {
-        ClientMealDto dto = clientMealService.getMealById(id);
-        return Response.ok(dto).build();
+        return Response.ok(clientMealService.getClientMealById(id)).build();
     }
 
     @Override

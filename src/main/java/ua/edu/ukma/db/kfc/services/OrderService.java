@@ -29,29 +29,32 @@ public class OrderService {
     private ClientService clientService;
     @Inject
     private EmployeeService employeeService;
+    @Inject
+    private ClientMealService clientMealService;
+
 
     public OrderDto getOrderById(int orderId) {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow(NotFoundException::new);
         orderValidator.validForView(orderEntity);
         OrderDto orderDto = orderMapper.toResponse(orderEntity);
-        // TODO
-        //orderDto.setClientMealsIds(clientMealService.getClientMealsIds(orderId));
+
+        orderDto.setClientMealsIds(clientMealService.getClientMealsIdsByOrderId(orderId));
         return orderDto;
     }
 
     public int createOrder(CreateOrderDto createOrderDto) {
         OrderEntity orderEntity = new OrderEntity();
         orderMapper.toEntity(createOrderDto, orderEntity);
-        // TODO
-        // orderEntity.setCost(clientMealService.calculateCost(createOrderDto.getClientMeals()));
+        orderEntity.setCost(clientMealService.calculateCost(createOrderDto.getClientMeals()));
         orderEntity.setCost(BigDecimal.ONE);
         orderEntity.setDateCreated(TimeUtils.getCurrentDateTimeUTC());
         orderEntity.setClientId(clientService.getIdByUserId(createOrderDto.getClientUserId()));
         orderEntity.setEmployeeId(employeeService.getIdByUserId(createOrderDto.getEmployeeUserId()));
         orderValidator.validForCreate(orderEntity);
         int id = orderRepository.save(orderEntity);
-        // TODO
-        // clientMealService.createClientMeals(id, createOrderDto.getClientMeals());
+
+        clientMealService.createClientMeals(id, createOrderDto.getClientMeals());
+
         return id;
     }
 }

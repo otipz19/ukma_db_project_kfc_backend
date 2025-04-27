@@ -34,7 +34,7 @@ public class MealIngredientService {
         return repository.findByMealId(mealId);
     }
 
-    public Map<Integer, List<MealIngredientEntity>> getByMealIds(List<Integer> mealIds) {
+    public Map<Integer, List<MealIngredientEntity>>getByMealIds(List<Integer> mealIds) {
         return repository.findByMealIds(mealIds).stream()
                 .collect(Collectors.groupingBy(MealIngredientEntity::getMealId));
     }

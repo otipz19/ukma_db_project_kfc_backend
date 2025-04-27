@@ -87,9 +87,8 @@ components:
           properties:
             clientMeals:
               type: array
-              items: # TODO
-                type: object
-                additionalProperties: true
+              items:
+                $ref: 'client-meal-api.yaml#/components/schemas/CreateClientMeal'
           required:
             - clientMeals
 
