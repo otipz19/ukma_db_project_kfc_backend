@@ -21,11 +21,18 @@ public class MealIngredientValidator extends BaseValidator<MealIngredientEntity>
     }
 
     public void validForCreate(List<MealIngredientEntity> entities) {
-        entities.forEach(this::validateData);
         if (entities.isEmpty())
             throw new ValidationException("error.modify-meal.no-ingredients");
+        entities.forEach(this::validateData);
         if (!ingredientRepository.checkAllAreActualByIds(entities.stream().map(MealIngredientEntity::getIngredientId).toList()))
             throw new ValidationException("error.modify-meal.ingredient-not-found");
+    }
+
+    @Override
+    protected void validateData(MealIngredientEntity entity) {
+        super.validateData(entity);
+        if (entity.getAmount() == 0 && entity.isFixated())
+            throw new ValidationException("error.modify-meal.ingredient-fixated-zero-amount");
     }
 
     @Override

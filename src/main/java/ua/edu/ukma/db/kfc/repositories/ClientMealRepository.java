@@ -7,19 +7,28 @@ import ua.edu.ukma.db.kfc.model.entities.ClientMealEntity;
 import java.sql.*;
 import java.util.*;
 
+import static java.sql.Types.INTEGER;
+
 @ApplicationScoped
 public class ClientMealRepository extends BaseRepository<ClientMealEntity, Integer> {
 
-    public List<ClientMealEntity> findAll() {
-        String sql = "SELECT * FROM client_meal";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            List<ClientMealEntity> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(map(rs));
+    public List<ClientMealEntity> findAll(Integer orderId) {
+        String sql = "SELECT * FROM client_meals WHERE ? IS NULL OR order_id = ?";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
+            if (orderId != null) {
+                stmt.setInt(1, orderId);
+                stmt.setInt(2, orderId);
+            } else {
+                stmt.setNull(1, INTEGER);
+                stmt.setNull(2, INTEGER);
             }
-            return result;
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<ClientMealEntity> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(map(rs));
+                }
+                return result;
+            }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
@@ -27,7 +36,7 @@ public class ClientMealRepository extends BaseRepository<ClientMealEntity, Integ
 
     @Override
     public Optional<ClientMealEntity> findById(Integer id) {
-        String sql = "SELECT * FROM client_meal WHERE id = ?";
+        String sql = "SELECT * FROM client_meals WHERE id = ?";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -41,70 +50,17 @@ public class ClientMealRepository extends BaseRepository<ClientMealEntity, Integ
         return Optional.empty();
     }
 
-    public List<ClientMealEntity> findByOrderId(int orderId) {
-        String sql = "SELECT * FROM client_meal WHERE order_id = ?";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setInt(1, orderId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                List<ClientMealEntity> result = new ArrayList<>();
-                while (rs.next()) {
-                    result.add(map(rs));
-                }
-                return result;
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
-    public List<ClientMealEntity> findByMealId(int mealId) {
-        String sql = "SELECT * FROM client_meal WHERE meal_id = ?";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setInt(1, mealId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                List<ClientMealEntity> result = new ArrayList<>();
-                while (rs.next()) {
-                    result.add(map(rs));
-                }
-                return result;
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
     @Override
     public Integer save(ClientMealEntity entity) {
-        String sql = """
-            INSERT INTO client_meal
-              (energetic_value, price, weight, meal_id, order_id, amount_in_order)
-            VALUES (?, ?, ?, ?, ?, ?)
-            RETURNING id
-        """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction()
-                .prepareStatement(sql)) {
-            stmt.setInt(1, entity.getEnergeticValue());
-            stmt.setBigDecimal(2, entity.getPrice());
-            stmt.setInt(3, entity.getWeight());
-            stmt.setInt(4, entity.getMealId());
-            stmt.setInt(5, entity.getOrderId());
-            stmt.setInt(6, entity.getAmountInOrder());
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                } else {
-                    throw new DataBaseException("Failed to insert client_meal");
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
+        List<Integer> id = saveAll(List.of(entity));
+        if (id.isEmpty())
+            throw new DataBaseException("Failed to save client meal");
+        return id.getFirst();
     }
 
     public List<Integer> saveAll(Collection<ClientMealEntity> entities) {
         String sql = """
-            INSERT INTO client_meal
-              (energetic_value, price, weight, meal_id, order_id, amount_in_order)
+            INSERT INTO client_meals (energetic_value, price, weight, meal_id, order_id, amount_in_order)
             VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id
         """;
@@ -131,38 +87,15 @@ public class ClientMealRepository extends BaseRepository<ClientMealEntity, Integ
         }
     }
 
-    public void delete(int id) {
-        String sql = "DELETE FROM client_meal WHERE id = ?";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
-    public void deleteAll(Collection<Integer> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return;
-        }
-        String sql = "DELETE FROM client_meal WHERE id = ANY(?)";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
     private ClientMealEntity map(ResultSet rs) throws SQLException {
-        ClientMealEntity e = new ClientMealEntity();
-        e.setId(rs.getInt("id"));
-        e.setEnergeticValue(rs.getInt("energetic_value"));
-        e.setPrice(rs.getBigDecimal("price"));
-        e.setWeight(rs.getInt("weight"));
-        e.setMealId(rs.getInt("meal_id"));
-        e.setOrderId(rs.getInt("order_id"));
-        e.setAmountInOrder(rs.getInt("amount_in_order"));
-        return e;
+        return new ClientMealEntity(
+                rs.getInt("id"),
+                rs.getInt("energetic_value"),
+                rs.getInt("weight"),
+                rs.getBigDecimal("price"),
+                rs.getInt("order_id"),
+                rs.getInt("meal_id"),
+                rs.getInt("amount_in_order")
+        );
     }
 }

@@ -30,7 +30,7 @@ public class MealController implements MealControllerApi {
 
     @Override
     public Response createMeal(UpdateMealDto dto) {
-        return Response.ok(mealService.save(dto)).build();
+        return Response.ok(mealService.saveMeal(dto)).build();
     }
 
     @Override

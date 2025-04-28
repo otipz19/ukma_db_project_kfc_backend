@@ -1,6 +1,5 @@
 package ua.edu.ukma.db.kfc.model.entities;
 
-import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,6 @@ public class OrderEntity {
 
     private Integer id;
 
-    @DecimalMin(value = "0.1", message = "error.order.cost.min")
     private BigDecimal cost;
 
     private LocalDateTime dateCreated;

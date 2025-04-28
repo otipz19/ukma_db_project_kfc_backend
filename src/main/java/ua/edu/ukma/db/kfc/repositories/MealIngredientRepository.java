@@ -31,17 +31,8 @@ public class MealIngredientRepository extends BaseRepository<MealIngredientEntit
 
     @Override
     public MealIngredientPK save(MealIngredientEntity entity) {
-        String sql = "INSERT INTO meals_ingredients (meal_id, ingredient_id, amount, is_fixated) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setInt(1, entity.getMealId());
-            stmt.setInt(2, entity.getIngredientId());
-            stmt.setInt(3, entity.getAmount());
-            stmt.setBoolean(4, entity.isFixated());
-            stmt.executeUpdate();
-            return new MealIngredientPK(entity.getMealId(), entity.getIngredientId());
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
+        saveAll(List.of(entity));
+        return new MealIngredientPK(entity.getMealId(), entity.getIngredientId());
     }
 
     public void saveAll(Collection<MealIngredientEntity> entities) {

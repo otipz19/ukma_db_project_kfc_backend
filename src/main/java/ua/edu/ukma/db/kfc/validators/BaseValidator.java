@@ -22,7 +22,7 @@ public abstract class BaseValidator<E> implements IValidator<E> {
     }
 
     @Override
-    public void validForView(List<E> userEntities) {
+    public void validForView(List<E> entities) {
         securityContextHolder.authorized();
     }
 

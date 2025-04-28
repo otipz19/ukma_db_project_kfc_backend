@@ -1,6 +1,6 @@
 package ua.edu.ukma.db.kfc.model.entities;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +14,6 @@ public class ClientMealIngredientEntity {
 
     private Integer ingredientId;
 
-    @Positive(message = "error.client-meal-ingredient.amount.min")
-    private Integer amount;
+    @PositiveOrZero(message = "error.client-meal-ingredient.amount.min")
+    private int amount;
 }

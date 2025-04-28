@@ -14,18 +14,19 @@ public class ClientMealEntity {
 
     private Integer id;
 
+    @Positive(message = "error.client-meal.energetic-value.min")
     private int energeticValue;
 
+    @Positive(message = "error.client-meal.weight.min")
     private int weight;
 
+    @DecimalMin(value = "0.1", message = "error.client-meal.price.min")
     private BigDecimal price;
 
-    @NotNull(message = "error.client-meal.meal-id.null")
-    private Integer mealId;
+    private int orderId;
 
-    @NotNull(message = "error.client-meal.order-id.null")
-    private Integer orderId;
+    private int mealId;
 
     @Positive(message = "error.client-meal.amount-in-order.min")
-    private Integer amountInOrder;
+    private int amountInOrder;
 }

@@ -73,28 +73,27 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
         }
     }
 
-    @Override
-    public Integer save(MealEntity entity) {
-        String sql = """
-        INSERT INTO meals (title, additional_price, description, recipe, energetic_value, weight, price)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        RETURNING id
-        """;
+    public List<MealEntity> findByIds(Collection<Integer> ids) {
+        String sql = "SELECT * FROM meals WHERE id = ANY (?) AND is_actual = true";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setString(1, entity.getTitle());
-            stmt.setBigDecimal(2, entity.getAdditionalPrice());
-            stmt.setString(3, entity.getDescription());
-            stmt.setString(4, entity.getRecipe());
-            stmt.setInt(5, entity.getEnergeticValue());
-            stmt.setInt(6, entity.getWeight());
-            stmt.setBigDecimal(7, entity.getPrice());
+            stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
-                throw new DataBaseException("Failed to save meal");
+                List<MealEntity> result = new ArrayList<>();
+                while (rs.next())
+                    result.add(map(rs));
+                return result;
             }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    @Override
+    public Integer save(MealEntity entity) {
+        List<Integer> id = saveAll(List.of(entity));
+        if (id.isEmpty())
+            throw new DataBaseException("Failed to save meal");
+        return id.getFirst();
     }
 
     public List<Integer> saveAll(Collection<MealEntity> entities) {

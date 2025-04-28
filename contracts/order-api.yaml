@@ -106,13 +106,8 @@ components:
               format: date-time
             isCompleted:
               type: boolean
-            clientMealsIds:
-              type: array
-              items:
-                type: integer
           required:
             - id
             - cost
             - dateCreated
             - isCompleted
-            - clientMealsIds

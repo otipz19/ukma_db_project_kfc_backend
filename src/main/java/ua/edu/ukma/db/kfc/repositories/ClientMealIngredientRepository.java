@@ -1,6 +1,5 @@
 package ua.edu.ukma.db.kfc.repositories;
 
-
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
 import ua.edu.ukma.db.kfc.model.entities.ClientMealIngredientEntity;
@@ -17,8 +16,10 @@ public class ClientMealIngredientRepository extends BaseRepository<ClientMealIng
 
     @Override
     public Optional<ClientMealIngredientEntity> findById(ClientMealIngredientPK id) {
-        String sql = "SELECT * FROM client_meal_ingredient " +
-                "WHERE client_meal_id = ? AND ingredient_id = ?";
+        String sql = """
+                SELECT * FROM client_meals_ingredients
+                WHERE client_meal_id = ? AND ingredient_id = ?
+                """;
         try (PreparedStatement stmt = transactionManager
                 .currentTransaction()
                 .prepareStatement(sql)) {
@@ -37,27 +38,15 @@ public class ClientMealIngredientRepository extends BaseRepository<ClientMealIng
 
     @Override
     public ClientMealIngredientPK save(ClientMealIngredientEntity entity) {
-        String sql = "INSERT INTO client_meal_ingredient " +
-                "(client_meal_id, ingredient_id, amount) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = transactionManager
-                .currentTransaction()
-                .prepareStatement(sql)) {
-            stmt.setInt(1, entity.getClientMealId());
-            stmt.setInt(2, entity.getIngredientId());
-            stmt.setInt(3, entity.getAmount());
-            stmt.executeUpdate();
-            return new ClientMealIngredientPK(
-                    entity.getClientMealId(),
-                    entity.getIngredientId()
-            );
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
+        saveAll(List.of(entity));
+        return new ClientMealIngredientPK(entity.getClientMealId(), entity.getIngredientId());
     }
 
     public void saveAll(Collection<ClientMealIngredientEntity> entities) {
-        String sql = "INSERT INTO client_meal_ingredient " +
-                "(client_meal_id, ingredient_id, amount) VALUES (?, ?, ?)";
+        String sql = """
+                INSERT INTO client_meals_ingredients (client_meal_id, ingredient_id, amount)
+                VALUES (?, ?, ?)
+                """;
         try (PreparedStatement stmt = transactionManager
                 .currentTransaction()
                 .prepareStatement(sql)) {
@@ -73,33 +62,32 @@ public class ClientMealIngredientRepository extends BaseRepository<ClientMealIng
         }
     }
 
-    public List<ClientMealIngredientEntity> findByClientMealId(int clientMealId) {
-        String sql = "SELECT * FROM client_meal_ingredient WHERE client_meal_id = ?";
-        try (PreparedStatement stmt = transactionManager
-                .currentTransaction()
-                .prepareStatement(sql)) {
-            stmt.setInt(1, clientMealId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                List<ClientMealIngredientEntity> list = new ArrayList<>();
-                while (rs.next()) {
-                    list.add(map(rs));
-                }
-                return list;
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
-    public List<ClientMealIngredientEntity> findByClientMealIds(Collection<Integer> ids) {
-        String sql = "SELECT * FROM client_meal_ingredient WHERE client_meal_id = ANY (?)";
+    public List<ClientMealIngredientEntity> findUnionByClientMealIds(Collection<Integer> clientMealsIds) {
+        String sql = """
+                WITH
+                overridden_ingredients AS (
+                    SELECT client_meal_id, ingredient_id, amount
+                    FROM client_meals_ingredients
+                    WHERE client_meal_id = ANY(?)
+                ),
+                base_ingredients AS (
+                    SELECT c.id AS client_meal_id, i.ingredient_id, i.amount
+                    FROM client_meals c JOIN meals_ingredients i ON c.meal_id = i.meal_id
+                    WHERE c.id = ANY(?)
+                )
+                SELECT b.client_meal_id, b.ingredient_id, COALESCE(o.amount, b.amount) AS amount
+                FROM base_ingredients b
+                    LEFT JOIN overridden_ingredients o
+                    ON b.ingredient_id = o.ingredient_id AND b.client_meal_id = o.client_meal_id
+                """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
+            Array arr = transactionManager.currentTransaction().createArrayOf(clientMealsIds, Integer.class);
+            stmt.setArray(1, arr);
+            stmt.setArray(2, arr);
             try (ResultSet rs = stmt.executeQuery()) {
                 List<ClientMealIngredientEntity> result = new ArrayList<>();
-                while (rs.next()) {
+                while (rs.next())
                     result.add(map(rs));
-                }
                 return result;
             }
         } catch (SQLException e) {

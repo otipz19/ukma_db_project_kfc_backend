@@ -30,10 +30,13 @@ public class MealEntity {
     @Size(max = 1024, message = "error.meal.recipe.size")
     private String recipe;
 
+    @Positive(message = "error.meal.energetic-value.min")
     private int energeticValue;
 
+    @Positive(message = "error.meal.weight.min")
     private int weight;
 
+    @DecimalMin(value = "0.1", message = "error.meal.price.min")
     private BigDecimal price;
 
     private boolean isActual = true;

@@ -2,7 +2,6 @@ package ua.edu.ukma.db.kfc.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import ua.edu.ukma.db.kfc.model.entities.ClientMealEntity;
 import ua.edu.ukma.db.kfc.model.entities.ClientMealIngredientEntity;
 import ua.edu.ukma.db.kfc.rest.model.ClientMealDto;
@@ -24,6 +23,9 @@ public interface ClientMealMapper {
     }
 
     @Mapping(target = "id", ignore = true)
-    void toEntity(CreateClientMealDto dto, @MappingTarget ClientMealEntity entity);
+    @Mapping(target = "energeticValue", ignore = true)
+    @Mapping(target = "weight", ignore = true)
+    @Mapping(target = "price", ignore = true)
+    ClientMealEntity toEntity(int orderId, CreateClientMealDto dto);
 
 }

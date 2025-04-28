@@ -13,8 +13,6 @@ import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
 import ua.edu.ukma.db.kfc.validators.OrderValidator;
 
-import java.math.BigDecimal;
-
 @ApplicationScoped
 @Interceptors(TransactionInterceptor.class)
 public class OrderService {
@@ -32,21 +30,15 @@ public class OrderService {
     @Inject
     private ClientMealService clientMealService;
 
-
     public OrderDto getOrderById(int orderId) {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow(NotFoundException::new);
         orderValidator.validForView(orderEntity);
-        OrderDto orderDto = orderMapper.toResponse(orderEntity);
-
-        orderDto.setClientMealsIds(clientMealService.getClientMealsIdsByOrderId(orderId));
-        return orderDto;
+        return orderMapper.toResponse(orderEntity);
     }
 
     public int createOrder(CreateOrderDto createOrderDto) {
         OrderEntity orderEntity = new OrderEntity();
         orderMapper.toEntity(createOrderDto, orderEntity);
-        orderEntity.setCost(clientMealService.calculateCost(createOrderDto.getClientMeals()));
-        orderEntity.setCost(BigDecimal.ONE);
         orderEntity.setDateCreated(TimeUtils.getCurrentDateTimeUTC());
         orderEntity.setClientId(clientService.getIdByUserId(createOrderDto.getClientUserId()));
         orderEntity.setEmployeeId(employeeService.getIdByUserId(createOrderDto.getEmployeeUserId()));
