@@ -8,8 +8,10 @@ import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
 import ua.edu.ukma.db.kfc.model.entities.OrderEntity;
+import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.ClientRepository;
 import ua.edu.ukma.db.kfc.repositories.EmployeeRepository;
+import ua.edu.ukma.db.kfc.repositories.OrderRepository;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 
 import java.util.List;
@@ -24,6 +26,8 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
     private ClientRepository clientRepository;
     @Inject
     private EmployeeRepository employeeRepository;
+    @Inject
+    private OrderRepository orderRepository;
 
     @Override
     public void validForView(OrderEntity entity) {
@@ -40,7 +44,7 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
         return switch (securityContextHolder.getContext().getUserRole()) {
             case ADMIN -> true;
             case CLIENT -> clientCanView(entity);
-            case MANAGER, COOK, CASHIER -> employeeCanView(entity);
+            case MANAGER, COOK, CASHIER -> employeeCanInteract(entity);
         };
     }
 
@@ -50,7 +54,7 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
         return Objects.equals(entity.getClientId(), currentClient.getId());
     }
 
-    private boolean employeeCanView(OrderEntity entity) {
+    private boolean employeeCanInteract(OrderEntity entity) {
         EmployeeEntity currentEmployee = employeeRepository.findByUsername(securityContextHolder.getContext().getUsername())
                 .orElseThrow(ForbiddenException::new);
         return Objects.equals(entity.getRestaurantId(), currentEmployee.getRestaurantId());
@@ -66,5 +70,11 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
              if (!Objects.equals(employee.getRestaurantId(), entity.getRestaurantId()))
                  throw new ValidationException("error.create-order.employee.different-restaurant");
          }
+    }
+
+    public void validForComplete(OrderEntity entity) {
+        if (securityContextHolder.hasRole(UserRoleEnum.ADMIN)) return;
+        if (!employeeCanInteract(entity))
+            throw new ForbiddenException();
     }
 }

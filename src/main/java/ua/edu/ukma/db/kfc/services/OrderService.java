@@ -49,4 +49,10 @@ public class OrderService {
 
         return id;
     }
+
+    public void completeOrder(int orderId) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow(NotFoundException::new);
+        orderValidator.validForComplete(orderEntity);
+        orderRepository.complete(orderId);
+    }
 }

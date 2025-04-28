@@ -105,6 +105,16 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
         }
     }
 
+    public void complete(int orderId) {
+        String query = "UPDATE orders SET is_completed = true WHERE id = ?";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, orderId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     private OrderEntity map(ResultSet resultSet) throws SQLException {
         return new OrderEntity(
                 resultSet.getInt("id"),
