@@ -8,14 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MealIngredientEntity {
+public class ClientMealIngredientEntity {
 
-    private Integer mealId;
+    private Integer clientMealId;
 
     private Integer ingredientId;
 
-    @PositiveOrZero(message = "error.meal-ingredient.amount.min")
+    @PositiveOrZero(message = "error.client-meal-ingredient.amount.min")
     private int amount;
-
-    private boolean isFixated;
 }

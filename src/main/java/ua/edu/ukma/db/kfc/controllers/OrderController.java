@@ -22,4 +22,10 @@ public class OrderController implements OrderControllerApi {
     public Response createOrder(CreateOrderDto createOrderDto) {
         return Response.ok(orderService.createOrder(createOrderDto)).build();
     }
+
+    @Override
+    public Response completeOrder(Integer orderId) {
+        orderService.completeOrder(orderId);
+        return Response.noContent().build();
+    }
 }

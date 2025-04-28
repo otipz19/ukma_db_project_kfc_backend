@@ -1,6 +1,5 @@
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
-    cost NUMERIC(10, 2) NOT NULL,
     date_created TIMESTAMP NOT NULL,
     is_completed BOOLEAN NOT NULL,
     restaurant_id INTEGER NOT NULL REFERENCES restaurants(id) ON DELETE NO ACTION,

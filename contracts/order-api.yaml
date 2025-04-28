@@ -66,6 +66,31 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/order/{orderId}/complete:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema:
+          type: integer
+
+    post:
+      operationId: completeOrder
+      tags:
+        - order-controller
+      summary: Complete order
+      responses:
+        204:
+          description: Order marked as completed
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     BaseOrder:
@@ -87,9 +112,8 @@ components:
           properties:
             clientMeals:
               type: array
-              items: # TODO
-                type: object
-                additionalProperties: true
+              items:
+                $ref: 'client-meal-api.yaml#/components/schemas/CreateClientMeal'
           required:
             - clientMeals
 
@@ -107,13 +131,8 @@ components:
               format: date-time
             isCompleted:
               type: boolean
-            clientMealsIds:
-              type: array
-              items:
-                type: integer
           required:
             - id
             - cost
             - dateCreated
             - isCompleted
-            - clientMealsIds

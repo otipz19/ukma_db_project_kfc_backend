@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  title: Client Meal Service
+  version: '1.0'
+  description: Client Meal Service
+
+tags:
+  - name: client-meal-controller
+    description: Client Meal Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/client-meal:
+    get:
+      operationId: getAllClientMeals
+      tags:
+        - client-meal-controller
+      summary: Get all client meals
+      parameters:
+        - in: query
+          name: orderId
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of client meals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClientMeal'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+  /api/client-meal/{clientMealId}:
+    parameters:
+      - name: clientMealId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      operationId: getClientMealById
+      tags:
+        - client-meal-controller
+      summary: Get a client meal by its id
+      responses:
+        200:
+          description: Client meal with corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientMeal'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    BaseClientMeal:
+      type: object
+      properties:
+        mealId:
+          type: integer
+        amountInOrder:
+          type: integer
+      required:
+        - mealId
+        - amountInOrder
+
+    CreateClientMeal:
+      allOf:
+        - $ref: '#/components/schemas/BaseClientMeal'
+        - type: object
+          properties:
+            ingredientOverrides:
+              type: array
+              items:
+                $ref: '#/components/schemas/ClientMealIngredient'
+
+    ClientMeal:
+      allOf:
+        - $ref: '#/components/schemas/BaseClientMeal'
+        - type: object
+          properties:
+            id:
+              type: integer
+            orderId:
+              type: integer
+            energeticValue:
+              type: integer
+            weight:
+              type: integer
+            price:
+              type: number
+            ingredients:
+              type: array
+              items:
+                $ref: '#/components/schemas/ClientMealIngredient'
+          required:
+            - id
+            - orderId
+            - energeticValue
+            - weight
+            - price
+            - ingredients
+
+    ClientMealIngredient:
+      type: object
+      properties:
+        ingredientId:
+          type: integer
+        amount:
+          type: integer
+      required:
+        - ingredientId
+        - amount

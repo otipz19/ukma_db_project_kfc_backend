@@ -52,7 +52,7 @@ public class MealService {
         return mapper.toResponse(entity, ingredients);
     }
 
-    public int save(UpdateMealDto dto) {
+    public int saveMeal(UpdateMealDto dto) {
         MealEntity meal = new MealEntity();
         mapper.toEntity(dto, meal);
         mealIngredientService.calculateDerivedAttributes(meal, dto.getIngredients());
