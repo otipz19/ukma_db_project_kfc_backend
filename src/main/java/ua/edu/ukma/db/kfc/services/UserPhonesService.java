@@ -7,6 +7,7 @@ import ua.edu.ukma.db.kfc.repositories.UserPhonesRepository;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.UserPhonesValidator;
 
+import java.util.HashSet;
 import java.util.List;
 
 @ApplicationScoped
@@ -26,6 +27,6 @@ public class UserPhonesService {
     public void setUserPhones(int userId, List<String> phones) {
         validator.validForSetPhones(userId, phones);
         repository.clearUserPhones(userId);
-        repository.setUserPhones(userId, phones);
+        repository.setUserPhones(userId, new HashSet<>(phones));
     }
 }

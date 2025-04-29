@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class UserPhonesRepository {
@@ -42,7 +43,7 @@ public class UserPhonesRepository {
         }
     }
 
-    public void setUserPhones(int userId, List<String> phones) {
+    public void setUserPhones(int userId, Set<String> phones) {
         String query = "INSERT INTO user_phones (user_id, phone) VALUES (?, ?)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, userId);

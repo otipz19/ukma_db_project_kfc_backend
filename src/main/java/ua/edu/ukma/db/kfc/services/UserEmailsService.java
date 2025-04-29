@@ -7,6 +7,7 @@ import ua.edu.ukma.db.kfc.repositories.UserEmailsRepository;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.UserEmailsValidator;
 
+import java.util.HashSet;
 import java.util.List;
 
 @ApplicationScoped
@@ -26,6 +27,6 @@ public class UserEmailsService {
     public void setUserEmails(int userId, List<String> emails) {
         validator.validForSetEmails(userId, emails);
         repository.clearUserEmails(userId);
-        repository.setUserEmails(userId, emails);
+        repository.setUserEmails(userId, new HashSet<>(emails));
     }
 }

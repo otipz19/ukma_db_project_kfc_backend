@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class UserEmailsRepository {
@@ -42,7 +43,7 @@ public class UserEmailsRepository {
         }
     }
 
-    public void setUserEmails(int userId, List<String> emails) {
+    public void setUserEmails(int userId, Set<String> emails) {
         String query = "INSERT INTO user_emails (user_id, email) VALUES (?, ?)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, userId);
