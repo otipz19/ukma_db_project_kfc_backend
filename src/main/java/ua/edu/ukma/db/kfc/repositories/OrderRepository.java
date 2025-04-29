@@ -2,16 +2,14 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.OrdersFilter;
 import ua.edu.ukma.db.kfc.model.entities.OrderEntity;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.sql.Types.INTEGER;
 
@@ -67,6 +65,69 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    public List<OrderEntity> findByFilter(OrdersFilter filter) {
+        String query = """
+                SELECT o.id,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id) AS cost,
+                    o.date_created, o.is_completed,
+                    o.restaurant_id,
+                    o.client_id, c.user_id AS client_user_id,
+                    o.employee_id, e.user_id AS employee_user_id
+                FROM orders o
+                    LEFT JOIN clients c ON o.client_id = c.id
+                    LEFT JOIN employees e ON o.employee_id = e.id
+                """;
+        query = filter.addFilteringAndPagination(query, Map.of(
+                    "id", "o.id",
+                    "restaurantId", "o.restaurant_id",
+                    "employeeUserId", "e.user_id",
+                    "clientUserId", "c.user_id",
+                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id)",
+                    "dateCreated", "o.date_created",
+                    "isCompleted", "o.is_completed"
+                )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<OrderEntity> result = new ArrayList<>();
+                while (rs.next())
+                    result.add(map(rs));
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public long countByFilter(OrdersFilter filter) {
+        String query = """
+                SELECT COUNT(*)
+                FROM orders o
+                    LEFT JOIN clients c ON o.client_id = c.id
+                    LEFT JOIN employees e ON o.employee_id = e.id
+                """;
+        query = filter.addFiltering(query, Map.of(
+                    "id", "o.id",
+                    "restaurantId", "o.restaurant_id",
+                    "employeeUserId", "e.user_id",
+                    "clientUserId", "c.user_id",
+                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id)",
+                    "dateCreated", "o.date_created",
+                    "isCompleted", "o.is_completed"
+                )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
     }
 
     @Override

@@ -23,3 +23,18 @@ components:
 
     InternalServerError:
       description: Internal Server Error
+
+  schemas:
+    BaseFilter:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        sortBy:
+          type: string
+          default: 'id'
+        descendingOrder:
+          type: boolean
+          default: false

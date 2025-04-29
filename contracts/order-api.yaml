@@ -12,6 +12,30 @@ servers:
 
 paths:
   /api/order:
+    get:
+      operationId: getOrdersByFilter
+      tags:
+        - order-controller
+      summary: Get orders by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersFilter'
+      responses:
+        200:
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
     post:
       operationId: createOrder
       tags:
@@ -136,3 +160,43 @@ components:
             - cost
             - dateCreated
             - isCompleted
+
+    OrdersList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    OrdersFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            id:
+              type: integer
+            restaurantId:
+              type: integer
+            employeeUserId:
+              type: integer
+            clientUserId:
+              type: integer
+            minCost:
+              type: number
+            maxCost:
+              type: number
+            minDateCreated:
+              type: string
+              format: date-time
+            maxDateCreated:
+              type: string
+              format: date-time
+            isCompleted:
+              type: boolean

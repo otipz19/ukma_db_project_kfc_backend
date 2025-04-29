@@ -5,10 +5,15 @@ import org.mapstruct.Mapping;
 import ua.edu.ukma.db.kfc.model.entities.OrderEntity;
 import ua.edu.ukma.db.kfc.rest.model.BaseOrderDto;
 import ua.edu.ukma.db.kfc.rest.model.OrderDto;
+import ua.edu.ukma.db.kfc.rest.model.OrdersListDto;
+
+import java.util.List;
 
 @Mapper(config = MapperConfiguration.class)
 public interface OrderMapper extends IMapper<OrderEntity, OrderDto, BaseOrderDto> {
 
     @Mapping(target = "isCompleted", source = "completed")
     OrderDto toResponse(OrderEntity entity);
+
+    OrdersListDto toResponse(List<OrderEntity> items, long total);
 }
