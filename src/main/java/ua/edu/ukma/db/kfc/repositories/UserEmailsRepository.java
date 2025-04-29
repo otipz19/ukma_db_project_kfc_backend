@@ -69,4 +69,16 @@ public class UserEmailsRepository {
             throw new DataBaseException(e);
         }
     }
+
+    public boolean exists(String email) {
+        String query = "SELECT EXISTS (SELECT * FROM user_emails WHERE email = ?)";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
 }

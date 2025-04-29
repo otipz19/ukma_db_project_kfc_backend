@@ -24,4 +24,9 @@ public class UserEmailsController implements UserEmailsControllerApi {
         userEmailsService.setUserEmails(userId, emails);
         return Response.noContent().build();
     }
+
+    @Override
+    public Response checkUserEmailExists(String email) {
+        return Response.ok(userEmailsService.checkUserEmailExists(email)).build();
+    }
 }

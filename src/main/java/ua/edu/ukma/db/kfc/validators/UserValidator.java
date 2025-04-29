@@ -18,7 +18,7 @@ public class UserValidator extends BaseValidator<UserEntity> {
         validateData(entity);
         if (entity.getRole() == UserRoleEnum.ADMIN)
             throw new ValidationException("error.create-user.admin");
-        if (userRepository.existsByEmail(entity.getUsername()))
+        if (userRepository.existsByUsername(entity.getUsername()))
             throw new ValidationException("error.user.username.duplicate");
     }
 

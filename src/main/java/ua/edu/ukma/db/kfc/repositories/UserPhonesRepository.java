@@ -69,4 +69,16 @@ public class UserPhonesRepository {
             throw new DataBaseException(e);
         }
     }
+
+    public boolean exists(String phone) {
+        String query = "SELECT EXISTS (SELECT * FROM user_phones WHERE phone = ?)";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setString(1, phone);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
 }

@@ -29,4 +29,8 @@ public class UserEmailsService {
         repository.clearUserEmails(userId);
         repository.setUserEmails(userId, new HashSet<>(emails));
     }
+
+    public boolean checkUserEmailExists(String email) {
+        return repository.exists(email);
+    }
 }

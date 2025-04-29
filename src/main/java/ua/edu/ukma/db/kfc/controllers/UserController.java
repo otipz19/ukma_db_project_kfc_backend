@@ -18,6 +18,11 @@ public class UserController implements UserControllerApi {
     }
 
     @Override
+    public Response checkUserExists(String username) {
+        return Response.ok(userService.checkUserExists(username)).build();
+    }
+
+    @Override
     public Response disableUser(Integer userId) {
         userService.disableUser(userId);
         return Response.noContent().build();

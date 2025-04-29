@@ -50,6 +50,10 @@ public class UserService {
         return mapper.toResponse(user);
     }
 
+    public boolean checkUserExists(String username) {
+        return repository.existsByUsername(username);
+    }
+
     public void disableUser(Integer userId) {
         UserEntity user = repository.findById(userId).orElseThrow(NotFoundException::new);
         validator.validForDisableUser(user);

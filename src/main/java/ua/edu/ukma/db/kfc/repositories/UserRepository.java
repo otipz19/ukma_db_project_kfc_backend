@@ -29,10 +29,10 @@ public class UserRepository extends BaseRepository<UserEntity, Integer> {
         return Optional.empty();
     }
 
-    public boolean existsByEmail(String email) {
-        final String query = "SELECT exists(SELECT * FROM users WHERE username = ?)";
+    public boolean existsByUsername(String username) {
+        final String query = "SELECT exists (SELECT * FROM users WHERE username = ?)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setString(1, email);
+            stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next() && rs.getBoolean(1);
             }

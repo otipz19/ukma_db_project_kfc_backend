@@ -29,4 +29,8 @@ public class UserPhonesService {
         repository.clearUserPhones(userId);
         repository.setUserPhones(userId, new HashSet<>(phones));
     }
+
+    public boolean checkUserPhoneExists(String phone) {
+        return repository.exists(phone);
+    }
 }

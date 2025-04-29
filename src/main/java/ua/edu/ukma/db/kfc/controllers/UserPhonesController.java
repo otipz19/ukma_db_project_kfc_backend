@@ -24,4 +24,9 @@ public class UserPhonesController implements UserPhonesControllerApi {
         userPhonesService.setUserPhones(userId, phones);
         return Response.noContent().build();
     }
+
+    @Override
+    public Response checkUserPhoneExists(String phone) {
+        return Response.ok(userPhonesService.checkUserPhoneExists(phone)).build();
+    }
 }

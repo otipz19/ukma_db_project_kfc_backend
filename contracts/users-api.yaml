@@ -53,6 +53,28 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /check/user/exists/{username}:
+    get:
+      operationId: checkUserExists
+      tags:
+        - user-controller
+      description: Check if user exists
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Boolean value indicating whether user exists
+          content:
+            application/json:
+              schema:
+                type: boolean
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UserRole:
