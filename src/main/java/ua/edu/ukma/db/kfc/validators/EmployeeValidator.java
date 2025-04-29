@@ -29,8 +29,7 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
 
     @Override
     public void validForView(List<EmployeeEntity> userEntities) {
-        EmployeeEntity currentEmployee = employeeRepository.findByUsername(securityContextHolder.getContext().getUsername())
-                .orElseThrow(ForbiddenException::new);
+        EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
         userEntities.removeIf(e -> !hasPermission(e, currentEmployee));
     }
 
@@ -73,8 +72,7 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
     }
 
     private void validatePermissions(EmployeeEntity entity) {
-        EmployeeEntity currentEmployee = employeeRepository.findByUsername(securityContextHolder.getContext().getUsername())
-                .orElseThrow(ForbiddenException::new);
+        EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
         if (!hasPermission(entity, currentEmployee)) throw new ForbiddenException();
     }
 

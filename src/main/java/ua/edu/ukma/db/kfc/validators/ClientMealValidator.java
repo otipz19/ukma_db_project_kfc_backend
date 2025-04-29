@@ -26,7 +26,6 @@ public class ClientMealValidator extends BaseValidator<ClientMealEntity>{
     public void validForView(List<ClientMealEntity> entities) {
         List<Integer> orderIds = entities.stream()
                 .map(ClientMealEntity::getOrderId)
-                .distinct()
                 .toList();
         orderValidator.validForView(orderRepository.findByIds(orderIds));
     }

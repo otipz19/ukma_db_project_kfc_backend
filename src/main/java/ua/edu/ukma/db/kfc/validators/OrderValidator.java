@@ -9,9 +9,7 @@ import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
 import ua.edu.ukma.db.kfc.model.entities.OrderEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
-import ua.edu.ukma.db.kfc.repositories.ClientRepository;
 import ua.edu.ukma.db.kfc.repositories.EmployeeRepository;
-import ua.edu.ukma.db.kfc.repositories.OrderRepository;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 
 import java.util.List;
@@ -23,11 +21,7 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
     @Inject
     private RestaurantRepository restaurantRepository;
     @Inject
-    private ClientRepository clientRepository;
-    @Inject
     private EmployeeRepository employeeRepository;
-    @Inject
-    private OrderRepository orderRepository;
 
     @Override
     public void validForView(OrderEntity entity) {
@@ -49,14 +43,12 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
     }
 
     private boolean clientCanView(OrderEntity entity) {
-        ClientEntity currentClient = clientRepository.findByUsername(securityContextHolder.getContext().getUsername())
-                .orElseThrow(ForbiddenException::new);
+        ClientEntity currentClient = securityContextHolder.getCurrentClientOrThrow();
         return Objects.equals(entity.getClientId(), currentClient.getId());
     }
 
     private boolean employeeCanInteract(OrderEntity entity) {
-        EmployeeEntity currentEmployee = employeeRepository.findByUsername(securityContextHolder.getContext().getUsername())
-                .orElseThrow(ForbiddenException::new);
+        EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
         return Objects.equals(entity.getRestaurantId(), currentEmployee.getRestaurantId());
     }
 
