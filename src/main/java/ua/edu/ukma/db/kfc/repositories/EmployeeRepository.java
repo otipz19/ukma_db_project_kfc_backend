@@ -3,20 +3,20 @@ package ua.edu.ukma.db.kfc.repositories;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.EmployeesFilter;
 import ua.edu.ukma.db.kfc.mappers.EnumsMapper;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
-import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
 
-import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import static java.sql.Types.*;
+import static java.util.Map.entry;
 
 @ApplicationScoped
 public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> {
@@ -31,9 +31,9 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
                     e1.salary, e1.birth_date, u.role AS position, e1.manager_id, e2.user_id AS manager_user_id,
                     e1.restaurant_id, e1.is_deleted
                 FROM employees e1
-                    LEFT JOIN users u ON e1.user_id = u.id
+                    JOIN users u ON e1.user_id = u.id
                     LEFT JOIN employees e2 ON e1.manager_id = e2.id
-                WHERE e1.id = ? AND e1.is_deleted = false
+                WHERE e1.id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -52,9 +52,9 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
                     e1.salary, e1.birth_date, u.role AS position, e1.manager_id, e2.user_id AS manager_user_id,
                     e1.restaurant_id, e1.is_deleted
                 FROM employees e1
-                    LEFT JOIN users u ON e1.user_id = u.id
+                    JOIN users u ON e1.user_id = u.id
                     LEFT JOIN employees e2 ON e1.manager_id = e2.id
-                WHERE e1.user_id = ? AND e1.is_deleted = false
+                WHERE e1.user_id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, userId);
@@ -73,9 +73,9 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
                     e1.salary, e1.birth_date, u.role AS position, e1.manager_id, e2.user_id AS manager_user_id,
                     e1.restaurant_id, e1.is_deleted
                 FROM employees e1
-                    LEFT JOIN users u ON e1.user_id = u.id
+                    JOIN users u ON e1.user_id = u.id
                     LEFT JOIN employees e2 ON e1.manager_id = e2.id
-                WHERE u.username = ? AND e1.is_deleted = false
+                WHERE u.username = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setString(1, username);
@@ -122,36 +122,36 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
         return Optional.empty();
     }
 
-    public List<EmployeeEntity> findAll(Integer restaurantId, List<UserRoleEnum> roles) {
+    public List<EmployeeEntity> findByFilter(EmployeesFilter filter) {
         String query = """
-                SELECT e1.id, e1.user_id, u.username, e1.passport_number, e1.surname, e1.first_name, e1.middle_name,
+                SELECT DISTINCT e1.id, e1.user_id, u.username, e1.passport_number, e1.surname, e1.first_name, e1.middle_name,
                     e1.salary, e1.birth_date, u.role AS position, e1.manager_id, e2.user_id AS manager_user_id,
                     e1.restaurant_id, e1.is_deleted
                 FROM employees e1
-                    LEFT JOIN users u ON e1.user_id = u.id
+                    JOIN users u ON e1.user_id = u.id
                     LEFT JOIN employees e2 ON e1.manager_id = e2.id
-                WHERE (? IS NULL OR e1.restaurant_id = ?)
-                    AND (? IS NULL OR u.role = ANY (?))
-                    AND e1.is_deleted = false
+                    LEFT JOIN user_emails ON e1.user_id = user_emails.user_id
+                    LEFT JOIN user_phones ON e1.user_id = user_phones.user_id
                 """;
+        query = filter.addFilteringAndPagination(query, Map.ofEntries(
+                    entry("id", "e1.id"),
+                    entry("userId", "e1.user_id"),
+                    entry("username", "u.username"),
+                    entry("passportNumber", "e1.passport_number"),
+                    entry("surname", "e1.surname"),
+                    entry("firstName", "e1.first_name"),
+                    entry("middleName", "e1.middle_name"),
+                    entry("phone", "phone"),
+                    entry("email", "email"),
+                    entry("salary", "e1.salary"),
+                    entry("birthDate", "e1.birth_date"),
+                    entry("position", "u.role"),
+                    entry("managerUserId", "e2.user_id"),
+                    entry("restaurantId", "e1.restaurant_id")
+                )
+        );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            if (restaurantId != null) {
-                stmt.setInt(1, restaurantId);
-                stmt.setInt(2, restaurantId);
-            }
-            else {
-                stmt.setNull(1, BIT);
-                stmt.setNull(2, INTEGER);
-            }
-            if (roles != null && !roles.isEmpty()) {
-                Array array = transactionManager.currentTransaction().createArrayOf(roles, "varchar");
-                stmt.setArray(3, array);
-                stmt.setArray(4, array);
-            }
-            else {
-                stmt.setNull(3, BIT);
-                stmt.setNull(4, ARRAY);
-            }
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 List<EmployeeEntity> employees = new ArrayList<>();
                 while (rs.next())
@@ -161,6 +161,41 @@ public class EmployeeRepository extends BaseRepository<EmployeeEntity, Integer> 
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    public long countByFilter(EmployeesFilter filter) {
+        String query = """
+                SELECT COUNT (DISTINCT e1.id)
+                FROM employees e1
+                    JOIN users u ON e1.user_id = u.id
+                    LEFT JOIN employees e2 ON e1.manager_id = e2.id
+                    LEFT JOIN user_emails ON e1.user_id = user_emails.user_id
+                    LEFT JOIN user_phones ON e1.user_id = user_phones.user_id
+                """;
+        query = filter.addFiltering(query, Map.ofEntries(
+                        entry("username", "u.username"),
+                        entry("passportNumber", "e1.passport_number"),
+                        entry("surname", "e1.surname"),
+                        entry("firstName", "e1.first_name"),
+                        entry("middleName", "e1.middle_name"),
+                        entry("phone", "phone"),
+                        entry("email", "email"),
+                        entry("salary", "e1.salary"),
+                        entry("birthDate", "e1.birth_date"),
+                        entry("position", "u.role"),
+                        entry("managerUserId", "e2.user_id"),
+                        entry("restaurantId", "e1.restaurant_id")
+                )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
     }
 
     @Override

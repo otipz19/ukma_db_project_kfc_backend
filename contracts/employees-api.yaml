@@ -13,32 +13,22 @@ servers:
 paths:
   /api/employee:
     get:
-      operationId: getAllEmployees
+      operationId: getEmployeesByFilter
       tags:
         - employee-controller
-      summary: Get all employees
-      parameters:
-        - in: query
-          name: restaurantId
-          required: false
-          schema:
-            type: integer
-        - in: query
-          name: position
-          required: false
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/EmployeePosition'
+      summary: Get employees by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeesFilter'
       responses:
         200:
           description: List of employees
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Employee'
+                $ref: '#/components/schemas/EmployeesList'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:
@@ -216,3 +206,43 @@ components:
             - userId
             - username
             - position
+
+    EmployeesList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Employee'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    EmployeesFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            query:
+              type: string
+            minSalary:
+              type: number
+            maxSalary:
+              type: number
+            minBirthDate:
+              type: string
+              format: date
+            maxBirthDate:
+              type: string
+              format: date
+            positions:
+              type: array
+              items:
+                $ref: '#/components/schemas/EmployeePosition'
+            managerUserId:
+              type: integer
+            restaurantId:
+              type: integer
