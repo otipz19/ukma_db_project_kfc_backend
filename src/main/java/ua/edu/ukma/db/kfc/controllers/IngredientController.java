@@ -3,11 +3,10 @@ package ua.edu.ukma.db.kfc.controllers;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import ua.edu.ukma.db.kfc.rest.model.IngredientsFilterDto;
 import ua.edu.ukma.db.kfc.services.IngredientService;
 import ua.edu.ukma.db.kfc.rest.api.IngredientControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.UpdateIngredientDto;
-
-import java.util.List;
 
 @ApplicationScoped
 public class IngredientController implements IngredientControllerApi {
@@ -16,18 +15,13 @@ public class IngredientController implements IngredientControllerApi {
     private IngredientService ingredientService;
 
     @Override
-    public Response getAllIngredients(List<Integer> ids) {
-        return Response.ok(ingredientService.getAllIngredients(ids)).build();
+    public Response getIngredientsByFilter(IngredientsFilterDto filter) {
+        return Response.ok(ingredientService.getIngredientsByFilter(filter)).build();
     }
 
     @Override
-    public Response getIngredientById(Integer id) {
-        return Response.ok(ingredientService.getIngredientById(id)).build();
-    }
-
-    @Override
-    public Response getIngredientByTitle(String title) {
-        return Response.ok(ingredientService.getIngredientByTitle(title)).build();
+    public Response getIngredientById(Integer id, Boolean requireActual) {
+        return Response.ok(ingredientService.getIngredientById(id, requireActual)).build();
     }
 
     @Override

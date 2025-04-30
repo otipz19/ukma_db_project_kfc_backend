@@ -4,10 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.filters.IngredientsFilter;
 import ua.edu.ukma.db.kfc.mappers.IngredientMapper;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 import ua.edu.ukma.db.kfc.rest.model.IngredientDto;
 import ua.edu.ukma.db.kfc.repositories.IngredientRepository;
+import ua.edu.ukma.db.kfc.rest.model.IngredientsFilterDto;
+import ua.edu.ukma.db.kfc.rest.model.IngredientsListDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateIngredientDto;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.IngredientValidator;
@@ -27,20 +30,16 @@ public class IngredientService {
     @Inject
     private MealIngredientService mealIngredientService;
 
-    public List<IngredientDto> getAllIngredients(List<Integer> ids) {
-        List<IngredientEntity> ingredients = (ids == null || ids.isEmpty()) ? repository.findAll() : repository.findByIds(ids);
+    public IngredientsListDto getIngredientsByFilter(IngredientsFilterDto filterDto) {
+        IngredientsFilter filter = new IngredientsFilter(filterDto);
+        List<IngredientEntity> ingredients = repository.findByFilter(filter);
         validator.validForView(ingredients);
-        return mapper.toResponse(ingredients);
+        long total = repository.countByFilter(filter);
+        return mapper.toResponse(ingredients, total);
     }
 
-    public IngredientDto getIngredientById(int id) {
-        IngredientEntity entity = repository.findById(id).orElseThrow(NotFoundException::new);
-        validator.validForView(entity);
-        return mapper.toResponse(entity);
-    }
-
-    public IngredientDto getIngredientByTitle(String title) {
-        IngredientEntity entity = repository.findByTitle(title).orElseThrow(NotFoundException::new);
+    public IngredientDto getIngredientById(int id, boolean requireActual) {
+        IngredientEntity entity = repository.findById(id, requireActual).orElseThrow(NotFoundException::new);
         validator.validForView(entity);
         return mapper.toResponse(entity);
     }

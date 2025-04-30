@@ -14,27 +14,22 @@ servers:
 paths:
   /api/ingredient:
     get:
-      operationId: getAllIngredients
+      operationId: getIngredientsByFilter
       tags:
         - ingredient-controller
-      summary: Get all ingredients
-      parameters:
-        - in: query
-          name: ids
-          required: false
-          schema:
-            type: array
-            items:
-              type: integer
+      summary: Get ingredients by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientsFilter'
       responses:
         200:
-          description: List of all ingredients
+          description: List of ingredients
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Ingredient'
+                $ref: '#/components/schemas/IngredientsList'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         500:
@@ -80,6 +75,13 @@ paths:
       tags:
         - ingredient-controller
       summary: Get ingredient by id
+      parameters:
+        - in: query
+          name: requireActual
+          required: false
+          schema:
+            type: boolean
+            default: true
       responses:
         200:
           description: Ingredient with corresponding id
@@ -142,32 +144,6 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
-  /api/ingredient/by-title/{title}:
-    get:
-      operationId: getIngredientByTitle
-      tags:
-        - ingredient-controller
-      summary: Get ingredient by title
-      parameters:
-        - name: title
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Ingredient with corresponding title
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ingredient'
-        404:
-          $ref: 'common-types.yaml#/components/responses/NotFound'
-        401:
-          $ref: 'common-types.yaml#/components/responses/Unauthorized'
-        500:
-          $ref: 'common-types.yaml#/components/responses/InternalServerError'
-
 components:
   schemas:
     UpdateIngredient:
@@ -196,3 +172,44 @@ components:
               type: integer
           required:
             - id
+
+    IngredientsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    IngredientsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+            query:
+              type: string
+            minEnergeticValue:
+              type: integer
+            maxEnergeticValue:
+              type: integer
+            minWeight:
+              type: integer
+            maxWeight:
+              type: integer
+            minPrice:
+              type: number
+            maxPrice:
+              type: number
+            isActual:
+              type: boolean
+              default: true

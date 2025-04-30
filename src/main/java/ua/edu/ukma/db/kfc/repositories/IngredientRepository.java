@@ -2,34 +2,69 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.IngredientsFilter;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @ApplicationScoped
 public class IngredientRepository extends BaseRepository<IngredientEntity, Integer> {
 
-    public List<IngredientEntity> findAll() {
-        String sql = "SELECT * FROM ingredients WHERE is_actual = true";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            List<IngredientEntity> result = new ArrayList<>();
-            while (rs.next())
-                result.add(map(rs));
-            return result;
+    public List<IngredientEntity> findByFilter(IngredientsFilter filter) {
+        String query = "SELECT * FROM ingredients";
+        query = filter.addFilteringAndPagination(query, Map.of(
+                "id", "id",
+                "title", "title",
+                "energeticValue", "energetic_value",
+                "weight", "weight",
+                "price", "price",
+                "isActual", "is_actual"
+            )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<IngredientEntity> result = new ArrayList<>();
+                while (rs.next())
+                    result.add(map(rs));
+                return result;
+            }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
     }
 
+    public long countByFilter(IngredientsFilter filter) {
+        String query = "SELECT COUNT(*) FROM ingredients";
+        query = filter.addFiltering(query, Map.of(
+                "id", "id",
+                "title", "title",
+                "energeticValue", "energetic_value",
+                "weight", "weight",
+                "price", "price",
+                "isActual", "is_actual"
+            )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
+    }
+
     @Override
     public Optional<IngredientEntity> findById(Integer id) {
-        String sql = "SELECT * FROM ingredients WHERE id = ? AND is_actual = true";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
+        return findById(id, true);
+    }
+
+    public Optional<IngredientEntity> findById(Integer id, boolean requireActual) {
+        String query = "SELECT * FROM ingredients WHERE id = ?" + (requireActual ? " AND is_actual = true" : "");
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return Optional.of(map(rs));
