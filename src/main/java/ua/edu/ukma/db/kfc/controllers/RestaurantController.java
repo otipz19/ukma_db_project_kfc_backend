@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.RestaurantControllerApi;
+import ua.edu.ukma.db.kfc.rest.model.RestaurantsFilterDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateRestaurantDto;
 import ua.edu.ukma.db.kfc.services.RestaurantService;
 
@@ -14,8 +15,8 @@ public class RestaurantController implements RestaurantControllerApi {
     private RestaurantService service;
 
     @Override
-    public Response getAllRestaurants() {
-        return Response.ok(service.getAllRestaurants()).build();
+    public Response getRestaurantsByFilter(RestaurantsFilterDto filter) {
+        return Response.ok(service.getRestaurantsByFilter(filter)).build();
     }
 
     @Override

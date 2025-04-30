@@ -4,10 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.filters.RestaurantsFilter;
 import ua.edu.ukma.db.kfc.mappers.RestaurantMapper;
 import ua.edu.ukma.db.kfc.model.entities.RestaurantEntity;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 import ua.edu.ukma.db.kfc.rest.model.RestaurantDto;
+import ua.edu.ukma.db.kfc.rest.model.RestaurantsFilterDto;
+import ua.edu.ukma.db.kfc.rest.model.RestaurantsListDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateRestaurantDto;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.RestaurantValidator;
@@ -25,10 +28,12 @@ public class RestaurantService {
     @Inject
     private RestaurantMapper mapper;
 
-    public List<RestaurantDto> getAllRestaurants() {
-        List<RestaurantEntity> restaurants = repository.findAll();
+    public RestaurantsListDto getRestaurantsByFilter(RestaurantsFilterDto filterDto) {
+        RestaurantsFilter filter = new RestaurantsFilter(filterDto);
+        List<RestaurantEntity> restaurants = repository.findByFilter(filter);
         validator.validForView(restaurants);
-        return mapper.toResponse(restaurants);
+        long total = repository.countByFilter(filter);
+        return mapper.toResponse(restaurants, total);
     }
 
     public RestaurantDto getRestaurantById(int restaurantId) {

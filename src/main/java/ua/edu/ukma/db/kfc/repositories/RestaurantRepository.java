@@ -2,6 +2,7 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.RestaurantsFilter;
 import ua.edu.ukma.db.kfc.model.entities.RestaurantEntity;
 
 import java.sql.PreparedStatement;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -32,21 +34,34 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
         return Optional.empty();
     }
 
-    public List<RestaurantEntity> findAll() {
-        String query = """
-                SELECT *
-                FROM restaurants
-                WHERE is_deleted = false
-                """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            List<RestaurantEntity> restaurants = new ArrayList<>();
-            while (rs.next())
-                restaurants.add(map(rs));
-            return restaurants;
+    public List<RestaurantEntity> findByFilter(RestaurantsFilter filter) {
+        String query = "SELECT * FROM restaurants";
+        query = filter.addFilteringAndPagination(query, Map.of("id", "id", "address", "address"));
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<RestaurantEntity> restaurants = new ArrayList<>();
+                while (rs.next())
+                    restaurants.add(map(rs));
+                return restaurants;
+            }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    public long countByFilter(RestaurantsFilter filter) {
+        String query = "SELECT COUNT(*) FROM restaurants";
+        query = filter.addFiltering(query, Map.of("address", "address"));
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
     }
 
     public Optional<Integer> findIdByAddress(String address) {

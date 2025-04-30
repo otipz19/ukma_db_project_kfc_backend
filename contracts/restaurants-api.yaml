@@ -13,19 +13,22 @@ servers:
 paths:
   /api/restaurant:
     get:
-      operationId: getAllRestaurants
+      operationId: getRestaurantsByFilter
       tags:
         - restaurant-controller
-      summary: Get all restaurants
+      summary: Get restaurants by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantsFilter'
       responses:
         200:
           description: List of restaurants
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Restaurant'
+                $ref: '#/components/schemas/RestaurantsList'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         500:
@@ -144,3 +147,25 @@ components:
               type: integer
           required:
             - id
+
+    RestaurantsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Restaurant'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    RestaurantsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            query:
+              type: string
