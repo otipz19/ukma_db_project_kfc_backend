@@ -1,0 +1,78 @@
+package ua.edu.ukma.db.kfc.filters;
+
+import lombok.SneakyThrows;
+import ua.edu.ukma.db.kfc.rest.model.MealsFilterDto;
+import ua.edu.ukma.db.kfc.transactions.Transaction;
+
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class MealsFilter extends BaseFilter<MealsFilterDto> {
+
+    public MealsFilter(MealsFilterDto filter) {
+        super(filter);
+    }
+
+    @Override
+    protected List<String> formConditions(Map<String, String> fieldExpressionMap) {
+        List<String> conditions = new ArrayList<>();
+        if (filter.getIds() != null && !filter.getIds().isEmpty())
+            conditions.add(fieldExpressionMap.get("id") + " = ANY (?)");
+        if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
+            conditions.add(
+                    String.format("LOWER(CONCAT_WS(' ', %s, %s, %s)) LIKE LOWER('%%' || ? || '%%')",
+                            fieldExpressionMap.get("title"),
+                            fieldExpressionMap.get("description"),
+                            fieldExpressionMap.get("recipe"))
+            );
+        }
+        if (filter.getMinEnergeticValue() != null)
+            conditions.add(fieldExpressionMap.get("energeticValue") + " >= ?");
+        if (filter.getMaxEnergeticValue() != null)
+            conditions.add(fieldExpressionMap.get("energeticValue") + " <= ?");
+        if (filter.getMinWeight() != null)
+            conditions.add(fieldExpressionMap.get("weight") + " >= ?");
+        if (filter.getMaxWeight() != null)
+            conditions.add(fieldExpressionMap.get("weight") + " <= ?");
+        if (filter.getMinPrice() != null)
+            conditions.add(fieldExpressionMap.get("price") + " >= ?");
+        if (filter.getMaxPrice() != null)
+            conditions.add(fieldExpressionMap.get("price") + " <= ?");
+        if (filter.getMinAdditionalPrice() != null)
+            conditions.add(fieldExpressionMap.get("additionalPrice") + " >= ?");
+        if (filter.getMaxAdditionalPrice() != null)
+            conditions.add(fieldExpressionMap.get("additionalPrice") + " <= ?");
+        if (filter.getIsActual() != null)
+            conditions.add(fieldExpressionMap.get("isActual") + " = ?");
+        return conditions;
+    }
+
+    @Override
+    @SneakyThrows
+    protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+        if (filter.getIds() != null && !filter.getIds().isEmpty())
+            st.setArray(parametersIndexOffset++, tr.createArrayOf(filter.getIds(), Integer.class));
+        if (filter.getQuery() != null && !filter.getQuery().isBlank())
+            st.setString(parametersIndexOffset++, filter.getQuery());
+        if (filter.getMinEnergeticValue() != null)
+            st.setInt(parametersIndexOffset++, filter.getMinEnergeticValue());
+        if (filter.getMaxEnergeticValue() != null)
+            st.setInt(parametersIndexOffset++, filter.getMaxEnergeticValue());
+        if (filter.getMinWeight() != null)
+            st.setInt(parametersIndexOffset++, filter.getMinWeight());
+        if (filter.getMaxWeight() != null)
+            st.setInt(parametersIndexOffset++, filter.getMaxWeight());
+        if (filter.getMinPrice() != null)
+            st.setBigDecimal(parametersIndexOffset++, filter.getMinPrice());
+        if (filter.getMaxPrice() != null)
+            st.setBigDecimal(parametersIndexOffset++, filter.getMaxPrice());
+        if (filter.getMinAdditionalPrice() != null)
+            st.setBigDecimal(parametersIndexOffset++, filter.getMinAdditionalPrice());
+        if (filter.getMaxAdditionalPrice() != null)
+            st.setBigDecimal(parametersIndexOffset++, filter.getMaxAdditionalPrice());
+        if (filter.getIsActual() != null)
+            st.setBoolean(parametersIndexOffset, filter.getIsActual());
+    }
+}

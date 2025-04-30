@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.MealControllerApi;
+import ua.edu.ukma.db.kfc.rest.model.MealsFilterDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateMealDto;
 import ua.edu.ukma.db.kfc.services.MealService;
 
@@ -14,18 +15,13 @@ public class MealController implements MealControllerApi {
     private MealService mealService;
 
     @Override
-    public Response getAllMeals() {
-        return Response.ok(mealService.getAllMeals()).build();
+    public Response getMealsByFilter(MealsFilterDto filter) {
+        return Response.ok(mealService.getMealsByFilter(filter)).build();
     }
 
     @Override
-    public Response getMealById(Integer id) {
-        return Response.ok(mealService.getMealById(id)).build();
-    }
-
-    @Override
-    public Response getMealByTitle(String title) {
-        return Response.ok(mealService.getMealByTitle(title)).build();
+    public Response getMealById(Integer id, Boolean requireActual) {
+        return Response.ok(mealService.getMealById(id, requireActual)).build();
     }
 
     @Override

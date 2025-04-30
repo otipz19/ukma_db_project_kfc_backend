@@ -13,19 +13,22 @@ servers:
 paths:
   /api/meal:
     get:
-      operationId: getAllMeals
+      operationId: getMealsByFilter
       tags:
         - meal-controller
-      summary: Get all meals
+      summary: Get meals by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealsFilter'
       responses:
         200:
-          description: List of all meals
+          description: List of meals
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Meal'
+                $ref: '#/components/schemas/MealsList'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         500:
@@ -71,6 +74,13 @@ paths:
       tags:
         - meal-controller
       summary: Get meal by id
+      parameters:
+        - in: query
+          name: requireActual
+          required: false
+          schema:
+            type: boolean
+            default: true
       responses:
         200:
           description: Meal with corresponding id
@@ -126,32 +136,6 @@ paths:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:
           $ref: 'common-types.yaml#/components/responses/Forbidden'
-        404:
-          $ref: 'common-types.yaml#/components/responses/NotFound'
-        500:
-          $ref: 'common-types.yaml#/components/responses/InternalServerError'
-
-  /api/meal/by-title/{title}:
-    get:
-      operationId: getMealByTitle
-      tags:
-        - meal-controller
-      summary: Get meal by title
-      parameters:
-        - name: title
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Meal with corresponding title
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Meal'
-        401:
-          $ref: 'common-types.yaml#/components/responses/Unauthorized'
         404:
           $ref: 'common-types.yaml#/components/responses/NotFound'
         500:
@@ -213,3 +197,48 @@ components:
             - energeticValue
             - weight
             - price
+
+    MealsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meal'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    MealsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+            query:
+              type: string
+            minEnergeticValue:
+              type: integer
+            maxEnergeticValue:
+              type: integer
+            minWeight:
+              type: integer
+            maxWeight:
+              type: integer
+            minPrice:
+              type: number
+            maxPrice:
+              type: number
+            minAdditionalPrice:
+              type: number
+            maxAdditionalPrice:
+              type: number
+            isActual:
+              type: boolean
+              default: true
