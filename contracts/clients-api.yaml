@@ -36,19 +36,22 @@ paths:
 
   /api/client:
     get:
-      operationId: getAllClients
+      operationId: getClientsByFilter
       tags:
         - client-controller
-      summary: Get all clients
+      summary: Get clients by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientsFilter'
       responses:
         200:
           description: List of clients
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Client'
+                $ref: '#/components/schemas/ClientsList'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:
@@ -172,3 +175,35 @@ components:
             - userId
             - username
             - bonuses
+
+    ClientsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    ClientsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            query:
+              type: string
+            minBonuses:
+              type: integer
+            maxBonuses:
+              type: integer
+            minBirthDate:
+              type: string
+              format: date
+            maxBirthDate:
+              type: string
+              format: date

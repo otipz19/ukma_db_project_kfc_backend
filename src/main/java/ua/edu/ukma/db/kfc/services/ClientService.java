@@ -4,13 +4,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.filters.ClientsFilter;
 import ua.edu.ukma.db.kfc.mappers.ClientMapper;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.ClientRepository;
-import ua.edu.ukma.db.kfc.rest.model.ClientDto;
-import ua.edu.ukma.db.kfc.rest.model.ClientRegistrationDto;
-import ua.edu.ukma.db.kfc.rest.model.UpdateClientDto;
+import ua.edu.ukma.db.kfc.rest.model.*;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.ClientValidator;
 
@@ -50,10 +49,12 @@ public class ClientService {
         return mapper.toResponse(entity);
     }
 
-    public List<ClientDto> getAllClients() {
-        List<ClientEntity> entities = repository.findAll();
+    public ClientsListDto getClientsByFilter(ClientsFilterDto filterDto) {
+        ClientsFilter filter = new ClientsFilter(filterDto);
+        List<ClientEntity> entities = repository.findByFilter(filter);
         validator.validForView(entities);
-        return mapper.toResponse(entities);
+        long total = repository.countByFilter(filter);
+        return mapper.toResponse(entities, total);
     }
 
     public void updateClientByUserId(int userId, UpdateClientDto updateClientDto) {

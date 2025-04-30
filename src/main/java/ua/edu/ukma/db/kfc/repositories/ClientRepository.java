@@ -2,6 +2,7 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.ClientsFilter;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
 
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -19,8 +21,8 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
     public Optional<ClientEntity> findById(Integer id) {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients LEFT JOIN users ON clients.user_id = users.id
-                WHERE clients.id = ? AND is_deleted = false
+                FROM clients JOIN users ON clients.user_id = users.id
+                WHERE clients.id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -36,8 +38,8 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
     public Optional<ClientEntity> findByUserId(int userId) {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients LEFT JOIN users ON clients.user_id = users.id
-                WHERE user_id = ? AND is_deleted = false
+                FROM clients JOIN users ON clients.user_id = users.id
+                WHERE user_id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, userId);
@@ -53,8 +55,8 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
     public Optional<ClientEntity> findByUsername(String username) {
         String query = """
                 SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients LEFT JOIN users ON clients.user_id = users.id
-                WHERE username = ? AND is_deleted = false
+                FROM clients JOIN users ON clients.user_id = users.id
+                WHERE username = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setString(1, username);
@@ -67,21 +69,68 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         return Optional.empty();
     }
 
-    public List<ClientEntity> findAll() {
+    public List<ClientEntity> findByFilter(ClientsFilter filter) {
         String query = """
-                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients LEFT JOIN users ON clients.user_id = users.id
-                WHERE is_deleted = false
+                SELECT DISTINCT clients.id AS id, clients.user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                FROM clients
+                    JOIN users ON clients.user_id = users.id
+                    LEFT JOIN user_emails ON clients.user_id = user_emails.user_id
+                    LEFT JOIN user_phones ON clients.user_id = user_phones.user_id
                 """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            List<ClientEntity> clients = new ArrayList<>();
-            while (rs.next())
-                clients.add(map(rs));
-            return clients;
+        query =  filter.addFilteringAndPagination(query, Map.of(
+                "id", "clients.id",
+                "userId", "clients.user_id",
+                "username", "username",
+                "surname", "surname",
+                "firstName", "first_name",
+                "middleName", "middle_name",
+                "phone", "phone",
+                "email", "email",
+                "bonuses", "bonuses",
+                "birthDate", "birth_date"
+            )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<ClientEntity> clients = new ArrayList<>();
+                while (rs.next())
+                    clients.add(map(rs));
+                return clients;
+            }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    public long countByFilter(ClientsFilter filter) {
+        String query = """
+                SELECT COUNT(DISTINCT clients.id)
+                FROM clients
+                    JOIN users ON clients.user_id = users.id
+                    LEFT JOIN user_emails ON clients.user_id = user_emails.user_id
+                    LEFT JOIN user_phones ON clients.user_id = user_phones.user_id
+                """;
+        query =  filter.addFiltering(query, Map.of(
+                        "username", "username",
+                        "surname", "surname",
+                        "firstName", "first_name",
+                        "middleName", "middle_name",
+                        "phone", "phone",
+                        "email", "email",
+                        "bonuses", "bonuses",
+                        "birthDate", "birth_date"
+                )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
     }
 
     public Optional<Integer> findIdByUserId(int userId) {
