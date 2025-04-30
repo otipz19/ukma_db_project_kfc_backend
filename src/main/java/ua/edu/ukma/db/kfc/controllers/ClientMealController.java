@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.ClientMealControllerApi;
+import ua.edu.ukma.db.kfc.rest.model.ClientMealsFilterDto;
 import ua.edu.ukma.db.kfc.services.ClientMealService;
 
 @ApplicationScoped
@@ -13,8 +14,8 @@ public class ClientMealController implements ClientMealControllerApi {
     private ClientMealService clientMealService;
 
     @Override
-    public Response getAllClientMeals(Integer orderId) {
-        return Response.ok(clientMealService.getAllClientMeals(orderId)).build();
+    public Response getClientMealsByFilter(ClientMealsFilterDto filter) {
+        return Response.ok(clientMealService.getClientMealsByFilter(filter)).build();
     }
 
     @Override

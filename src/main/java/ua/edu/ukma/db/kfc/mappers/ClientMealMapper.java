@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import ua.edu.ukma.db.kfc.model.entities.ClientMealEntity;
 import ua.edu.ukma.db.kfc.model.entities.ClientMealIngredientEntity;
 import ua.edu.ukma.db.kfc.rest.model.ClientMealDto;
+import ua.edu.ukma.db.kfc.rest.model.ClientMealsListDto;
 import ua.edu.ukma.db.kfc.rest.model.CreateClientMealDto;
 
 import java.util.List;
@@ -20,6 +21,10 @@ public interface ClientMealMapper {
         return entities.stream()
                 .map(entity -> toResponse(entity, ingredientsMap.getOrDefault(entity.getId(), List.of())))
                 .toList();
+    }
+
+    default ClientMealsListDto toResponse(List<ClientMealEntity> entities, Map<Integer, List<ClientMealIngredientEntity>> ingredientsMap, long total) {
+        return new ClientMealsListDto(toResponse(entities, ingredientsMap), total);
     }
 
     @Mapping(target = "id", ignore = true)

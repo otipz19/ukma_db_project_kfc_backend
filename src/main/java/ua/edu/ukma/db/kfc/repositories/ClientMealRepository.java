@@ -2,26 +2,29 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.ClientMealsFilter;
 import ua.edu.ukma.db.kfc.model.entities.ClientMealEntity;
 
 import java.sql.*;
 import java.util.*;
 
-import static java.sql.Types.INTEGER;
-
 @ApplicationScoped
 public class ClientMealRepository extends BaseRepository<ClientMealEntity, Integer> {
 
-    public List<ClientMealEntity> findAll(Integer orderId) {
-        String sql = "SELECT * FROM client_meals WHERE ? IS NULL OR order_id = ?";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
-            if (orderId != null) {
-                stmt.setInt(1, orderId);
-                stmt.setInt(2, orderId);
-            } else {
-                stmt.setNull(1, INTEGER);
-                stmt.setNull(2, INTEGER);
-            }
+    public List<ClientMealEntity> findByFilter(ClientMealsFilter filter) {
+        String query = "SELECT * FROM client_meals";
+        query = filter.addFilteringAndPagination(query, Map.of(
+                "id", "id",
+                "energeticValue", "energetic_value",
+                "weight", "weight",
+                "price", "price",
+                "orderId", "order_id",
+                "mealId", "meal_id",
+                "amountInOrder", "amount_in_order"
+            )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 List<ClientMealEntity> result = new ArrayList<>();
                 while (rs.next()) {
@@ -32,6 +35,29 @@ public class ClientMealRepository extends BaseRepository<ClientMealEntity, Integ
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
+    }
+
+    public long countByFilter(ClientMealsFilter filter) {
+        String query = "SELECT COUNT(*) FROM client_meals";
+        query = filter.addFiltering(query, Map.of(
+                "id", "id",
+                "energeticValue", "energetic_value",
+                "weight", "weight",
+                "price", "price",
+                "orderId", "order_id",
+                "mealId", "meal_id",
+                "amountInOrder", "amount_in_order"
+            )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
     }
 
     @Override

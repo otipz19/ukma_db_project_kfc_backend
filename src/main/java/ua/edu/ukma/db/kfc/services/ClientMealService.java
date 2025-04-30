@@ -4,16 +4,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.filters.ClientMealsFilter;
 import ua.edu.ukma.db.kfc.mappers.ClientMealMapper;
 import ua.edu.ukma.db.kfc.model.entities.*;
 import ua.edu.ukma.db.kfc.repositories.ClientMealRepository;
-import ua.edu.ukma.db.kfc.rest.model.ClientMealIngredientDto;
+import ua.edu.ukma.db.kfc.rest.model.*;
 import ua.edu.ukma.db.kfc.services.ClientMealIngredientService.DbCache;
 import ua.edu.ukma.db.kfc.services.ClientMealIngredientService.IngredientsMergeResult;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.ClientMealValidator;
-import ua.edu.ukma.db.kfc.rest.model.ClientMealDto;
-import ua.edu.ukma.db.kfc.rest.model.CreateClientMealDto;
 
 import java.util.*;
 
@@ -30,13 +29,15 @@ public class ClientMealService {
     @Inject
     private ClientMealIngredientService clientMealIngredientService;
 
-    public List<ClientMealDto> getAllClientMeals(Integer orderId) {
-        List<ClientMealEntity> entities = repository.findAll(orderId);
+    public ClientMealsListDto getClientMealsByFilter(ClientMealsFilterDto filterDto) {
+        ClientMealsFilter filter = new ClientMealsFilter(filterDto);
+        List<ClientMealEntity> entities = repository.findByFilter(filter);
         validator.validForView(entities);
         Map<Integer, List<ClientMealIngredientEntity>> ingredientsMap = clientMealIngredientService.getByClientMealIds(
                 entities.stream().map(ClientMealEntity::getId).toList()
         );
-        return mapper.toResponse(entities, ingredientsMap);
+        long total = repository.countByFilter(filter);
+        return mapper.toResponse(entities, ingredientsMap, total);
     }
 
     public ClientMealDto getClientMealById(int id) {

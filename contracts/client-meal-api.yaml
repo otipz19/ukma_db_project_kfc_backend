@@ -13,25 +13,22 @@ servers:
 paths:
   /api/client-meal:
     get:
-      operationId: getAllClientMeals
+      operationId: getClientMealsByFilter
       tags:
         - client-meal-controller
-      summary: Get all client meals
-      parameters:
-        - in: query
-          name: orderId
-          required: false
-          schema:
-            type: integer
+      summary: Get client meals by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientMealsFilter'
       responses:
         200:
           description: List of client meals
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ClientMeal'
+                $ref: '#/components/schemas/ClientMealsList'
         401:
           $ref: 'common-types.yaml#/components/responses/Unauthorized'
         403:
@@ -128,3 +125,47 @@ components:
       required:
         - ingredientId
         - amount
+
+    ClientMealsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientMeal'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    ClientMealsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+            minEnergeticValue:
+              type: integer
+            maxEnergeticValue:
+              type: integer
+            minWeight:
+              type: integer
+            maxWeight:
+              type: integer
+            minPrice:
+              type: number
+            maxPrice:
+              type: number
+            orderId:
+              type: integer
+            mealId:
+              type: integer
+            minAmountInOrder:
+              type: integer
+            maxAmountInOrder:
+              type: integer
