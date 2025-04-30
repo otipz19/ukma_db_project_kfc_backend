@@ -6,10 +6,5 @@ import ua.edu.ukma.db.kfc.rest.model.ClientDto;
 import ua.edu.ukma.db.kfc.rest.model.ClientsListDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateClientDto;
 
-import java.util.List;
-
 @Mapper(config = MapperConfiguration.class)
-public interface ClientMapper extends IMapper<ClientEntity, ClientDto, UpdateClientDto> {
-
-    ClientsListDto toResponse(List<ClientEntity> items, long total);
-}
+public interface ClientMapper extends IListMapper<ClientEntity, ClientDto, ClientsListDto, UpdateClientDto> {}
