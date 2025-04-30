@@ -15,7 +15,7 @@ public class MealEntity {
     private Integer id;
 
     @NotBlank(message = "error.meal.title.blank")
-    @Size(min = 1, max = 64, message = "error.meal.title.size")
+    @Size(max = 64, message = "error.meal.title.size")
     private String title;
 
     @NotNull(message = "error.meal.additional-price.null")

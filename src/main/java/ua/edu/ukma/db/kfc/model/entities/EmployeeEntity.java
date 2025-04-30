@@ -25,14 +25,14 @@ public class EmployeeEntity {
     private String passportNumber;
 
     @NotBlank(message = "error.employee.surname.blank")
-    @Size(min = 1, max = 64, message = "error.employee.surname.size")
+    @Size(max = 64, message = "error.employee.surname.size")
     private String surname;
 
     @NotBlank(message = "error.employee.first-name.blank")
-    @Size(min = 1, max = 64, message = "error.employee.first-name.size")
+    @Size(max = 64, message = "error.employee.first-name.size")
     private String firstName;
 
-    @Size(min = 1, max = 64, message = "error.employee.middle-name.size")
+    @Size(max = 64, message = "error.employee.middle-name.size")
     private String middleName;
 
     @NotNull(message = "error.employee.salary.null")

@@ -15,7 +15,7 @@ public class IngredientEntity {
     private Integer id;
 
     @NotBlank(message = "error.ingredient.title.blank")
-    @Size(min = 1, max = 64, message = "error.ingredient.title.size")
+    @Size(max = 64, message = "error.ingredient.title.size")
     private String title;
 
     @Positive(message = "error.ingredient.energetic-value.min")

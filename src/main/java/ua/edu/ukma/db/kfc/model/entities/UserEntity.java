@@ -16,11 +16,11 @@ public class UserEntity {
     private Integer id;
 
     @NotBlank(message = "error.user.username.blank")
-    @Size(min = 1, max = 320, message = "error.user.username.size")
+    @Size(max = 320, message = "error.user.username.size")
     private String username;
 
     @NotBlank(message = "error.user.password-hash.blank")
-    @Size(min = 1, max = 250, message = "error.user.password-hash.size")
+    @Size(max = 250, message = "error.user.password-hash.size")
     private String passwordHash;
 
     @NotNull(message = "error.user.role.null")

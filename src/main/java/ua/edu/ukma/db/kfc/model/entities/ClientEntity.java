@@ -19,14 +19,14 @@ public class ClientEntity {
     private String username;
 
     @NotBlank(message = "error.client.surname.blank")
-    @Size(min = 1, max = 64, message = "error.client.surname.size")
+    @Size(max = 64, message = "error.client.surname.size")
     private String surname;
 
     @NotBlank(message = "error.client.first-name.blank")
-    @Size(min = 1, max = 64, message = "error.client.first-name.size")
+    @Size(max = 64, message = "error.client.first-name.size")
     private String firstName;
 
-    @Size(min = 1, max = 64, message = "error.client.middle-name.size")
+    @Size(max = 64, message = "error.client.middle-name.size")
     private String middleName;
 
     @PositiveOrZero(message = "error.client.bonuses.min")
