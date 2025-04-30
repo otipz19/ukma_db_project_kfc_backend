@@ -176,6 +176,21 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
         }
     }
 
+    public void addOrderBonuses(int orderId, int clientId) {
+        String query = """
+                UPDATE clients
+                SET bonuses = bonuses + (SELECT CEIL(SUM(price * amount_in_order) * 0.01) FROM client_meals WHERE order_id = ?)
+                WHERE id = ?
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, clientId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     private OrderEntity map(ResultSet resultSet) throws SQLException {
         return new OrderEntity(
                 resultSet.getInt("id"),

@@ -60,6 +60,8 @@ public class OrderService {
 
         clientMealService.createClientMeals(id, createOrderDto.getClientMeals());
 
+        orderRepository.addOrderBonuses(id, orderEntity.getClientId());
+
         return id;
     }
 
