@@ -52,7 +52,7 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
 
     public long countByFilter(RestaurantsFilter filter) {
         String query = "SELECT COUNT(*) FROM restaurants";
-        query = filter.addFiltering(query, Map.of("address", "address"));
+        query = filter.addFiltering(query, Map.of("id", "id", "address", "address"));
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {

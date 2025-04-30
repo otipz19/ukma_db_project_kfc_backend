@@ -167,5 +167,9 @@ components:
         - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
         - type: object
           properties:
+            ids:
+              type: array
+              items:
+                type: integer
             query:
               type: string

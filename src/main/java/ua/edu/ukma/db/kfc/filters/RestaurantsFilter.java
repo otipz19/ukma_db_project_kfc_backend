@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import ua.edu.ukma.db.kfc.rest.model.RestaurantsFilterDto;
 import ua.edu.ukma.db.kfc.transactions.Transaction;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,8 @@ public class RestaurantsFilter extends BaseFilter<RestaurantsFilterDto> {
     protected List<String> formConditions(Map<String, String> fieldExpressionMap) {
         List<String> conditions = new ArrayList<>();
         conditions.add("is_deleted = false");
+        if (filter.getIds() != null && !filter.getIds().isEmpty())
+            conditions.add(fieldExpressionMap.get("id") + " = ANY (?)");
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add(
                 String.format("LOWER(%s) LIKE LOWER('%%' || ? || '%%')", fieldExpressionMap.get("address"))
@@ -30,6 +33,10 @@ public class RestaurantsFilter extends BaseFilter<RestaurantsFilterDto> {
     @Override
     @SneakyThrows
     protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+        if (filter.getIds() != null && !filter.getIds().isEmpty()) {
+            Array array = tr.createArrayOf(filter.getIds(), Integer.class);
+            st.setArray(parametersIndexOffset++, array);
+        }
         if (filter.getQuery() != null && !filter.getQuery().isBlank())
             st.setString(parametersIndexOffset, filter.getQuery());
     }
