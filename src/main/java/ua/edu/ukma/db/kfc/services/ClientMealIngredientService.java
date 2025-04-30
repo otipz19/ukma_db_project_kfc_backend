@@ -76,7 +76,7 @@ public class ClientMealIngredientService {
             int ingredientId = ingredient.getIngredientId();
             int amount = ingredient.getAmount();
             ClientMealIngredientDto override = overridesMap.get(ingredientId);
-            if (!ingredient.isFixated() && override != null) {
+            if (!ingredient.isFixated() && override != null && amount != override.getAmount()) {
                 amount = override.getAmount();
                 overridden.add(override);
             }
