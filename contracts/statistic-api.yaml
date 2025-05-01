@@ -1,0 +1,209 @@
+openapi: 3.0.0
+info:
+  title: Statistics Service
+  version: '1.0'
+  description: Analytics endpoints for meals, cashiers, managers, clients, and employees.
+
+tags:
+  - name: statistic-controller
+    description: Statistic Controller
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/statistics/meals/popularity:
+    get:
+      operationId: getMealPopularity
+      tags:
+        - statistic-controller
+      summary: Get top 10 most popular meals
+      responses:
+        '200':
+          description: List of top-10 meals by completed-order count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamedEntityList'
+
+  /api/statistics/meals/least-popular:
+    get:
+      operationId: getMealLeastPopular
+      tags:
+        - statistic-controller
+      summary: Get top 10 least popular meals
+      responses:
+        '200':
+          description: List of 10 meals with lowest completed-order count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamedEntityList'
+
+  /api/statistics/meals/not-ordered-by-bonus:
+    get:
+      operationId: getMealsNotOrderedByBonusClients
+      tags:
+        - statistic-controller
+      summary: Get meals never ordered by clients with bonuses
+      responses:
+        '200':
+          description: Meals not ordered by bonus-holding clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamedEntityList'
+
+  /api/statistics/ingredients/only-in-ordered:
+    get:
+      operationId: getIngredientsOnlyInOrderedMeals
+      tags:
+        - statistic-controller
+      summary: Get ingredients only used in meals that were ordered
+      responses:
+        '200':
+          description: Ingredients only used in ordered meals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamedEntityList'
+
+  /api/statistics/managers/top-quarter:
+    get:
+      operationId: getTopManagersLastQuarter
+      tags:
+        - statistic-controller
+      summary: Get managers with highest order value last quarter
+      responses:
+        '200':
+          description: Top managers by total sales value in last quarter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamedEntityList'
+
+  /api/statistics/client/{clientId}/restaurants/averages:
+    get:
+      operationId: getClientMealAveragesByRestaurant
+      tags:
+        - statistic-controller
+      summary: Get average meal metrics per restaurant for a client
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Restaurant-level average price, weight, and energy for a client
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantStatsList'
+
+  /api/statistics/restaurant/{restaurantId}/employees/averages:
+    get:
+      operationId: getEmployeeMealAveragesByRestaurant
+      tags:
+        - statistic-controller
+      summary: Get average meal metrics per employee in a restaurant
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Employee-level average price, weight, and energy for a restaurant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeStatsList'
+
+  /api/statistics/cashiers/high-energy:
+    get:
+      operationId: getCashiersAlwaysHighEnergy
+      tags:
+        - statistic-controller
+      summary: Get cashiers who always sold at least one high-energy meal
+      parameters:
+        - name: threshold
+          in: query
+          schema:
+            type: integer
+            default: 300
+      responses:
+        '200':
+          description: Cashiers meeting the high-energy criterion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamedEntityList'
+
+components:
+  schemas:
+    NamedEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required: [ id, name ]
+
+    NamedEntityList:
+      type: array
+      items:
+        $ref: '#/components/schemas/NamedEntity'
+
+    RestaurantStats:
+      type: object
+      properties:
+        restaurantId:
+          type: integer
+        avgPrice:
+          type: number
+          format: double
+        avgWeight:
+          type: number
+          format: double
+        avgEnergeticValue:
+          type: number
+          format: double
+      required: [ restaurantId, avgPrice, avgWeight, avgEnergeticValue ]
+
+    RestaurantStatsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RestaurantStats'
+      required: [ items ]
+
+    EmployeeStats:
+      type: object
+      properties:
+        employeeId:
+          type: integer
+        avgPrice:
+          type: number
+          format: double
+        avgWeight:
+          type: number
+          format: double
+        avgEnergeticValue:
+          type: number
+          format: double
+      required: [ employeeId, avgPrice, avgWeight, avgEnergeticValue ]
+
+    EmployeeStatsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeStats'
+      required: [ items ]
