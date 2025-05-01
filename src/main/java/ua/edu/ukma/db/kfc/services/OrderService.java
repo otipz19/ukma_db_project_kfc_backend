@@ -16,6 +16,7 @@ import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
 import ua.edu.ukma.db.kfc.validators.OrderValidator;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -30,6 +31,12 @@ public class OrderService {
     private OrderValidator orderValidator;
     @Inject
     private ClientMealService clientMealService;
+    @Inject
+    private RestaurantService restaurantService;
+    @Inject
+    private MealService mealService;
+    @Inject
+    private IngredientService ingredientService;
 
     public OrderDto getOrderById(int orderId) {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow(NotFoundException::new);
@@ -64,5 +71,14 @@ public class OrderService {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow(NotFoundException::new);
         orderValidator.validForComplete(orderEntity);
         orderRepository.complete(orderId);
+    }
+
+    public int clearOrdersHistory(OffsetDateTime clearBefore) {
+        orderValidator.validForClearHistory();
+        int clearedOrders = orderRepository.deleteBefore(TimeUtils.mapToUtcDateTime(clearBefore));
+        restaurantService.clearDeletedRestaurants();
+        mealService.clearNotActualMeals();
+        ingredientService.clearNotActualIngredients();
+        return clearedOrders;
     }
 }

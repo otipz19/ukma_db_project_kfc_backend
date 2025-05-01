@@ -152,6 +152,24 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
         }
     }
 
+    public void clearNotActual() {
+        String query = """
+                DELETE FROM ingredients
+                WHERE is_actual = false AND id NOT IN (
+                    SELECT ingredient_id
+                    FROM meals_ingredients
+                ) AND id NOT IN (
+                    SELECT ingredient_id
+                    FROM client_meals_ingredients
+                )
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     private IngredientEntity map(ResultSet rs) throws SQLException {
         IngredientEntity entity = new IngredientEntity();
         entity.setId(rs.getInt("id"));

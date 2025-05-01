@@ -9,6 +9,7 @@ import ua.edu.ukma.db.kfc.utils.TimeUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.sql.Types.INTEGER;
@@ -157,6 +158,16 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
             stmt.setInt(1, orderId);
             stmt.setInt(2, clientUserId);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public int deleteBefore(LocalDateTime dateTime) {
+        String query = "DELETE FROM orders WHERE date_created < ?";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setTimestamp(1, TimeUtils.mapToSqlTimestamp(dateTime));
+            return stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }

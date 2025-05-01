@@ -83,4 +83,8 @@ public class MealService {
         validator.validForDelete(entity);
         repository.delete(id);
     }
+
+    public void clearNotActualMeals() {
+        repository.clearNotActual();
+    }
 }

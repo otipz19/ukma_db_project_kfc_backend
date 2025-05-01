@@ -61,4 +61,8 @@ public class RestaurantService {
         validator.validForDelete(restaurant);
         repository.delete(restaurantId);
     }
+
+    public void clearDeletedRestaurants() {
+        repository.clearDeleted();
+    }
 }

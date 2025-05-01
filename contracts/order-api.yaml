@@ -115,6 +115,31 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/order/clear-history:
+    post:
+      operationId: clearOrdersHistory
+      tags:
+        - order-controller
+      summary: Clear orders history
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClearOrdersHistoryRequest'
+      responses:
+        200:
+          description: Number of cleared orders
+          content:
+            application/json:
+              schema:
+                type: integer
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     BaseOrder:
@@ -160,6 +185,15 @@ components:
             - cost
             - dateCreated
             - isCompleted
+
+    ClearOrdersHistoryRequest:
+      type: object
+      properties:
+        clearBefore:
+          type: string
+          format: date-time
+      required:
+        - clearBefore
 
     OrdersList:
       type: object

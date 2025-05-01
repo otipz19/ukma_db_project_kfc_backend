@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.OrderControllerApi;
+import ua.edu.ukma.db.kfc.rest.model.ClearOrdersHistoryRequestDto;
 import ua.edu.ukma.db.kfc.rest.model.CreateOrderDto;
 import ua.edu.ukma.db.kfc.rest.model.OrdersFilterDto;
 import ua.edu.ukma.db.kfc.services.OrderService;
@@ -33,5 +34,10 @@ public class OrderController implements OrderControllerApi {
     public Response completeOrder(Integer orderId) {
         orderService.completeOrder(orderId);
         return Response.noContent().build();
+    }
+
+    @Override
+    public Response clearOrdersHistory(ClearOrdersHistoryRequestDto requestDto) {
+        return Response.ok(orderService.clearOrdersHistory(requestDto.getClearBefore())).build();
     }
 }

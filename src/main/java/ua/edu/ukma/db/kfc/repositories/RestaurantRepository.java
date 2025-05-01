@@ -164,6 +164,21 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
         }
     }
 
+    public void clearDeleted() {
+        String query = """
+                DELETE FROM restaurants
+                WHERE is_deleted = true AND id NOT IN (
+                    SELECT restaurant_id
+                    FROM orders
+                )
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     private RestaurantEntity map(ResultSet rs) throws SQLException {
         return new RestaurantEntity(
                 rs.getInt("id"),

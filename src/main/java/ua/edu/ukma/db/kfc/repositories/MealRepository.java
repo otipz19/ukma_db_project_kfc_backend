@@ -189,6 +189,21 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
         }
     }
 
+    public void clearNotActual() {
+        String query = """
+                DELETE FROM meals
+                WHERE is_actual = false AND id NOT IN (
+                    SELECT meal_id
+                    FROM client_meals
+                )
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     private MealEntity map(ResultSet rs) throws SQLException {
         MealEntity entity = new MealEntity();
         entity.setId(rs.getInt("id"));

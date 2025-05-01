@@ -70,4 +70,8 @@ public class IngredientService {
         validator.validForDelete(entity);
         repository.delete(id);
     }
+
+    public void clearNotActualIngredients() {
+        repository.clearNotActual();
+    }
 }

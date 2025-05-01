@@ -74,4 +74,8 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
         if (!employeeCanInteract(entity))
             throw new ForbiddenException();
     }
+
+    public void validForClearHistory() {
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+    }
 }
