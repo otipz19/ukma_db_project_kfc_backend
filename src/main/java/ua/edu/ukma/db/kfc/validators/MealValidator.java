@@ -7,8 +7,6 @@ import ua.edu.ukma.db.kfc.model.entities.MealEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.repositories.MealRepository;
 
-import java.util.Objects;
-
 @ApplicationScoped
 public class MealValidator extends BaseValidator<MealEntity> {
 

@@ -3,6 +3,7 @@ package ua.edu.ukma.db.kfc.controllers;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import ua.edu.ukma.db.kfc.rest.model.CreateIngredientDto;
 import ua.edu.ukma.db.kfc.rest.model.IngredientsFilterDto;
 import ua.edu.ukma.db.kfc.services.IngredientService;
 import ua.edu.ukma.db.kfc.rest.api.IngredientControllerApi;
@@ -25,7 +26,7 @@ public class IngredientController implements IngredientControllerApi {
     }
 
     @Override
-    public Response createIngredient(UpdateIngredientDto dto) {
+    public Response createIngredient(CreateIngredientDto dto) {
         return Response.ok(ingredientService.createIngredient(dto)).build();
     }
 

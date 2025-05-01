@@ -90,17 +90,16 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
         }
     }
 
-    public Optional<IngredientEntity> findByTitle(String title) {
-        String sql = "SELECT * FROM ingredients WHERE title = ? AND is_actual = true";
+    public boolean existsByTitle(String title) {
+        String sql = "SELECT EXISTS (SELECT * FROM ingredients WHERE title = ? AND is_actual = true)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(sql)) {
             stmt.setString(1, title);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return Optional.of(map(rs));
+                return rs.next() && rs.getBoolean(1);
             }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
-        return Optional.empty();
     }
 
     @Override

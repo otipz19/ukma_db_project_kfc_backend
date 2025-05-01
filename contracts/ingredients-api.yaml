@@ -45,7 +45,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateIngredient'
+              $ref: '#/components/schemas/CreateIngredient'
       responses:
         200:
           description: Id of the created ingredient
@@ -149,8 +149,6 @@ components:
     UpdateIngredient:
       type: object
       properties:
-        title:
-          type: string
         energeticValue:
           type: integer
         weight:
@@ -158,14 +156,23 @@ components:
         price:
           type: number
       required:
-        - title
         - energeticValue
         - weight
         - price
 
-    Ingredient:
+    CreateIngredient:
       allOf:
         - $ref: '#/components/schemas/UpdateIngredient'
+        - type: object
+          properties:
+            title:
+              type: string
+          required:
+            - title
+
+    Ingredient:
+      allOf:
+        - $ref: '#/components/schemas/CreateIngredient'
         - type: object
           properties:
             id:
