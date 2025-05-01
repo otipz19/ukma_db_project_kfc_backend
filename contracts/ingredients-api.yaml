@@ -196,6 +196,10 @@ components:
               type: array
               items:
                 type: integer
+            idsNot:
+              type: array
+              items:
+                type: integer
             query:
               type: string
             minEnergeticValue:

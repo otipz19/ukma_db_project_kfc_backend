@@ -20,6 +20,8 @@ public class IngredientsFilter extends BaseFilter<IngredientsFilterDto> {
         List<String> conditions = new ArrayList<>();
         if (filter.getIds() != null && !filter.getIds().isEmpty())
             conditions.add(fieldExpressionMap.get("id") + " = ANY (?)");
+        if (filter.getIdsNot() != null && !filter.getIdsNot().isEmpty())
+            conditions.add(fieldExpressionMap.get("id") + " <> ALL (?)");
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add(
                     String.format("LOWER(%s) LIKE LOWER('%%' || ? || '%%')", fieldExpressionMap.get("title"))
@@ -47,6 +49,8 @@ public class IngredientsFilter extends BaseFilter<IngredientsFilterDto> {
     protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         if (filter.getIds() != null && !filter.getIds().isEmpty())
             st.setArray(parametersIndexOffset++, tr.createArrayOf(filter.getIds(), Integer.class));
+        if (filter.getIdsNot() != null && !filter.getIdsNot().isEmpty())
+            st.setArray(parametersIndexOffset++, tr.createArrayOf(filter.getIdsNot(), Integer.class));
         if (filter.getQuery() != null && !filter.getQuery().isBlank())
             st.setString(parametersIndexOffset++, filter.getQuery());
         if (filter.getMinEnergeticValue() != null)
