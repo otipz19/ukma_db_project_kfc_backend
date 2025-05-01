@@ -20,8 +20,8 @@ public class RestaurantController implements RestaurantControllerApi {
     }
 
     @Override
-    public Response getRestaurantById(Integer restaurantId) {
-        return Response.ok(service.getRestaurantById(restaurantId)).build();
+    public Response getRestaurantById(Integer restaurantId, Boolean requireNotDeleted) {
+        return Response.ok(service.getRestaurantById(restaurantId, requireNotDeleted)).build();
     }
 
     @Override

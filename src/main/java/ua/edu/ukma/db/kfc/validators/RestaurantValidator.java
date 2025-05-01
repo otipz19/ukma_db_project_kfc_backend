@@ -45,7 +45,5 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);
         if (restaurantRepository.hasEmployees(entity.getId()))
             throw new ValidationException("error.delete-restaurant.has-employees");
-        if (orderRepository.existsByRestaurantId(entity.getId()))
-            throw new ValidationException("error.delete-restaurant.has-orders");
     }
 }

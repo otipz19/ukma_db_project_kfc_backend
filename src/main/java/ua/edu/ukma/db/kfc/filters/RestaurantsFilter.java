@@ -19,7 +19,6 @@ public class RestaurantsFilter extends BaseFilter<RestaurantsFilterDto> {
     @Override
     protected List<String> formConditions(Map<String, String> fieldExpressionMap) {
         List<String> conditions = new ArrayList<>();
-        conditions.add("is_deleted = false");
         if (filter.getIds() != null && !filter.getIds().isEmpty())
             conditions.add(fieldExpressionMap.get("id") + " = ANY (?)");
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
@@ -27,6 +26,8 @@ public class RestaurantsFilter extends BaseFilter<RestaurantsFilterDto> {
                 String.format("LOWER(%s) LIKE LOWER('%%' || ? || '%%')", fieldExpressionMap.get("address"))
             );
         }
+        if (filter.getIsDeleted() != null)
+            conditions.add(fieldExpressionMap.get("isDeleted") + " = ?");
         return conditions;
     }
 
@@ -38,6 +39,8 @@ public class RestaurantsFilter extends BaseFilter<RestaurantsFilterDto> {
             st.setArray(parametersIndexOffset++, array);
         }
         if (filter.getQuery() != null && !filter.getQuery().isBlank())
-            st.setString(parametersIndexOffset, filter.getQuery());
+            st.setString(parametersIndexOffset++, filter.getQuery());
+        if (filter.getIsDeleted() != null)
+            st.setBoolean(parametersIndexOffset, filter.getIsDeleted());
     }
 }

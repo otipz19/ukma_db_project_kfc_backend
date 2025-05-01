@@ -36,8 +36,8 @@ public class RestaurantService {
         return mapper.toResponse(restaurants, total);
     }
 
-    public RestaurantDto getRestaurantById(int restaurantId) {
-        RestaurantEntity restaurant = repository.findById(restaurantId).orElseThrow(NotFoundException::new);
+    public RestaurantDto getRestaurantById(int restaurantId, boolean requireNotDeleted) {
+        RestaurantEntity restaurant = repository.findById(restaurantId, requireNotDeleted).orElseThrow(NotFoundException::new);
         validator.validForView(restaurant);
         return mapper.toResponse(restaurant);
     }

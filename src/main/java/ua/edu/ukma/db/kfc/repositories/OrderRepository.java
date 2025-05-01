@@ -137,18 +137,6 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
         }
     }
 
-    public boolean existsByRestaurantId(int restaurantId) {
-        String query = "SELECT EXISTS (SELECT * FROM orders WHERE restaurant_id = ?)";
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setInt(1, restaurantId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next() && rs.getBoolean(1);
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
     public void complete(int orderId) {
         String query = "UPDATE orders SET is_completed = true WHERE id = ?";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {

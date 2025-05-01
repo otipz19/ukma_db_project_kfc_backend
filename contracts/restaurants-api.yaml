@@ -73,6 +73,13 @@ paths:
       tags:
         - restaurant-controller
       summary: Get restaurant by id
+      parameters:
+        - in: query
+          name: requireNotDeleted
+          required: false
+          schema:
+            type: boolean
+            default: true
       responses:
         200:
           description: Restaurant with corresponding id
@@ -173,3 +180,6 @@ components:
                 type: integer
             query:
               type: string
+            isDeleted:
+              type: boolean
+              default: false

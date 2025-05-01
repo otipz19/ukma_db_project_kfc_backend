@@ -18,11 +18,11 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
 
     @Override
     public Optional<RestaurantEntity> findById(Integer id) {
-        String query = """
-                SELECT *
-                FROM restaurants
-                WHERE id = ? AND is_deleted = false
-                """;
+        return findById(id, true);
+    }
+
+    public Optional<RestaurantEntity> findById(Integer id, boolean requireNotDeleted) {
+        String query = "SELECT * FROM restaurants WHERE id = ?" + (requireNotDeleted ? " AND is_deleted = false" : "");
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -36,7 +36,12 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
 
     public List<RestaurantEntity> findByFilter(RestaurantsFilter filter) {
         String query = "SELECT * FROM restaurants";
-        query = filter.addFilteringAndPagination(query, Map.of("id", "id", "address", "address"));
+        query = filter.addFilteringAndPagination(query, Map.of(
+                "id", "id",
+                "address", "address",
+                "isDeleted", "is_deleted"
+            )
+        );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
@@ -52,7 +57,12 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
 
     public long countByFilter(RestaurantsFilter filter) {
         String query = "SELECT COUNT(*) FROM restaurants";
-        query = filter.addFiltering(query, Map.of("id", "id", "address", "address"));
+        query = filter.addFiltering(query, Map.of(
+                "id", "id",
+                "address", "address",
+                "isDeleted", "is_deleted"
+            )
+        );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
