@@ -3,6 +3,7 @@ package ua.edu.ukma.db.kfc.mappers;
 import org.mapstruct.*;
 import ua.edu.ukma.db.kfc.model.entities.MealEntity;
 import ua.edu.ukma.db.kfc.model.entities.MealIngredientEntity;
+import ua.edu.ukma.db.kfc.rest.model.CreateMealDto;
 import ua.edu.ukma.db.kfc.rest.model.MealDto;
 import ua.edu.ukma.db.kfc.rest.model.MealsListDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateMealDto;
@@ -28,4 +29,7 @@ public interface MealMapper {
 
     @Mapping(target = "id", ignore = true)
     void toEntity(UpdateMealDto dto, @MappingTarget MealEntity entity);
+
+    @Mapping(target = "id", ignore = true)
+    MealEntity toEntity(CreateMealDto dto);
 }

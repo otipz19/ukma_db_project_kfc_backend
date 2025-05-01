@@ -8,10 +8,7 @@ import ua.edu.ukma.db.kfc.filters.MealsFilter;
 import ua.edu.ukma.db.kfc.mappers.MealMapper;
 import ua.edu.ukma.db.kfc.model.entities.MealEntity;
 import ua.edu.ukma.db.kfc.model.entities.MealIngredientEntity;
-import ua.edu.ukma.db.kfc.rest.model.MealDto;
-import ua.edu.ukma.db.kfc.rest.model.MealsFilterDto;
-import ua.edu.ukma.db.kfc.rest.model.MealsListDto;
-import ua.edu.ukma.db.kfc.rest.model.UpdateMealDto;
+import ua.edu.ukma.db.kfc.rest.model.*;
 import ua.edu.ukma.db.kfc.repositories.MealRepository;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.MealValidator;
@@ -50,9 +47,8 @@ public class MealService {
         return mapper.toResponse(entity, ingredients);
     }
 
-    public int saveMeal(UpdateMealDto dto) {
-        MealEntity meal = new MealEntity();
-        mapper.toEntity(dto, meal);
+    public int saveMeal(CreateMealDto dto) {
+        MealEntity meal = mapper.toEntity(dto);
         mealIngredientService.calculateDerivedAttributes(meal, dto.getIngredients());
 
         validator.validForCreate(meal);

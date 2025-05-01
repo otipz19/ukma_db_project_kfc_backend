@@ -26,14 +26,10 @@ public class MealValidator extends BaseValidator<MealEntity> {
     public void validForUpdate(MealEntity entity) {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);
         validateData(entity);
-        validateTitle(entity);
     }
 
     private void validateTitle(MealEntity entity) {
-        boolean titleIsOccupied = mealRepository.findByTitle(entity.getTitle())
-                .map(i -> !Objects.equals(i.getId(), entity.getId()))
-                .orElse(false);
-        if (titleIsOccupied)
+        if (mealRepository.existsByTitle(entity.getTitle()))
             throw new ValidationException("error.meal.title.duplicate");
     }
 
