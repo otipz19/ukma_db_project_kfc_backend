@@ -57,8 +57,9 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
          super.validForCreate(entity);
          if (!restaurantRepository.existsById(entity.getRestaurantId()))
              throw new ValidationException("error.create-order.restaurant.not-exists");
-         if (entity.getEmployeeId() != null) {
-             EmployeeEntity employee = employeeRepository.findById(entity.getEmployeeId()).orElseThrow(NotFoundException::new);
+         if (entity.getEmployeeUserId() != null) {
+             EmployeeEntity employee = employeeRepository.findByUserId(entity.getEmployeeUserId())
+                     .orElseThrow(() -> new ValidationException("error.create-order.employee.not-exists"));
              if (!Objects.equals(employee.getRestaurantId(), entity.getRestaurantId()))
                  throw new ValidationException("error.create-order.employee.different-restaurant");
          }

@@ -24,10 +24,9 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                     o.date_created, o.is_completed,
                     o.restaurant_id,
                     o.client_id, c.user_id AS client_user_id,
-                    o.employee_id, e.user_id AS employee_user_id
+                    o.employee_user_id
                 FROM orders o
                     LEFT JOIN clients c ON o.client_id = c.id
-                    LEFT JOIN employees e ON o.employee_id = e.id
                 WHERE o.id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
@@ -48,10 +47,9 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                     o.date_created, o.is_completed,
                     o.restaurant_id,
                     o.client_id, c.user_id AS client_user_id,
-                    o.employee_id, e.user_id AS employee_user_id
+                    o.employee_user_id
                 FROM orders o
                     LEFT JOIN clients c ON o.client_id = c.id
-                    LEFT JOIN employees e ON o.employee_id = e.id
                 WHERE o.id = ANY (?)
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
@@ -74,15 +72,14 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                     o.date_created, o.is_completed,
                     o.restaurant_id,
                     o.client_id, c.user_id AS client_user_id,
-                    o.employee_id, e.user_id AS employee_user_id
+                    o.employee_user_id
                 FROM orders o
                     LEFT JOIN clients c ON o.client_id = c.id
-                    LEFT JOIN employees e ON o.employee_id = e.id
                 """;
         query = filter.addFilteringAndPagination(query, Map.of(
                     "id", "o.id",
                     "restaurantId", "o.restaurant_id",
-                    "employeeUserId", "e.user_id",
+                    "employeeUserId", "o.employee_user_id",
                     "clientUserId", "c.user_id",
                     "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id)",
                     "dateCreated", "o.date_created",
@@ -107,12 +104,11 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                 SELECT COUNT(*)
                 FROM orders o
                     LEFT JOIN clients c ON o.client_id = c.id
-                    LEFT JOIN employees e ON o.employee_id = e.id
                 """;
         query = filter.addFiltering(query, Map.of(
                     "id", "o.id",
                     "restaurantId", "o.restaurant_id",
-                    "employeeUserId", "e.user_id",
+                    "employeeUserId", "o.employee_user_id",
                     "clientUserId", "c.user_id",
                     "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id)",
                     "dateCreated", "o.date_created",
@@ -133,7 +129,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     @Override
     public Integer save(OrderEntity entity) {
         String query = """
-            INSERT INTO orders (date_created, is_completed, restaurant_id, client_id, employee_id)
+            INSERT INTO orders (date_created, is_completed, restaurant_id, client_id, employee_user_id)
             VALUES (?, ?, ?, ?, ?)
             RETURNING id
             """;
@@ -143,7 +139,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
             stmt.setInt(3, entity.getRestaurantId());
             if (entity.getClientId() != null) stmt.setInt(4, entity.getClientId());
             else stmt.setNull(4, INTEGER);
-            if (entity.getEmployeeId() != null) stmt.setInt(5, entity.getEmployeeId());
+            if (entity.getEmployeeUserId() != null) stmt.setInt(5, entity.getEmployeeUserId());
             else stmt.setNull(5, INTEGER);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) throw new DataBaseException("Failed to save order");
@@ -200,7 +196,6 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                 resultSet.getInt("restaurant_id"),
                 resultSet.getObject("client_id", Integer.class),
                 resultSet.getObject("client_user_id", Integer.class),
-                resultSet.getObject("employee_id", Integer.class),
                 resultSet.getObject("employee_user_id", Integer.class)
         );
     }

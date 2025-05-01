@@ -55,13 +55,18 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
     public void validForDelete(EmployeeEntity entity) {
         if (actionForThemself(entity)) throw new ForbiddenException();
         validatePermissions(entity);
-        if (employeeRepository.hasSubordinates(entity.getId()))
+        if (employeeRepository.hasSubordinates(entity.getUserId()))
             throw new ValidationException("error.delete-employee.has-subordinates");
     }
 
     private boolean actionForThemself(EmployeeEntity entity) {
         String currentUser = securityContextHolder.getContext().getUsername();
         return currentUser.equals(entity.getUsername());
+    }
+
+    private void validatePermissions(EmployeeEntity entity) {
+        EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
+        if (!hasPermission(entity, currentEmployee)) throw new ForbiddenException();
     }
 
     private boolean hasPermission(EmployeeEntity entity, EmployeeEntity currentEmployee) {
@@ -71,19 +76,14 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
         return Objects.equals(currentEmployee.getRestaurantId(), entity.getRestaurantId());
     }
 
-    private void validatePermissions(EmployeeEntity entity) {
-        EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
-        if (!hasPermission(entity, currentEmployee)) throw new ForbiddenException();
-    }
-
     private void validateAge(EmployeeEntity entity) {
         if (entity.getBirthDate().plusYears(18).isAfter(TimeUtils.getCurrentDateTimeUTC().toLocalDate()))
             throw new ValidationException("error.employee.age.too-young");
     }
 
     private void validatePassportNumber(EmployeeEntity entity) {
-        boolean passportNumberInUse = employeeRepository.findIdByPassportNumber(entity.getPassportNumber())
-                .map(id -> !Objects.equals(id, entity.getId()))
+        boolean passportNumberInUse = employeeRepository.findUserIdByPassportNumber(entity.getPassportNumber())
+                .map(userId -> !Objects.equals(userId, entity.getUserId()))
                 .orElse(false);
         if (passportNumberInUse)
             throw new ValidationException("error.employee.passport-number.duplicate");
@@ -96,7 +96,7 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
 
     private void validateManager(EmployeeEntity entity) {
         EmployeeEntity manager;
-        if (entity.getManagerId() == null || (manager = employeeRepository.findById(entity.getManagerId()).orElse(null)) == null)
+        if (entity.getManagerUserId() == null || (manager = employeeRepository.findByUserId(entity.getManagerUserId()).orElse(null)) == null)
             throw new ValidationException("error.create-employee.manager.not-exists");
         if (manager.getPosition().getPriority() != entity.getPosition().getPriority() - 1)
             throw new ValidationException("error.create-employee.manager.invalid-position");

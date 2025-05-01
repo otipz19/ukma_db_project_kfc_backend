@@ -14,8 +14,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class EmployeeEntity {
 
-    private Integer id;
-
     private Integer userId;
 
     private String username;
@@ -45,11 +43,7 @@ public class EmployeeEntity {
     @NotNull(message = "error.employee.position.null")
     private EmployeePositionEnum position;
 
-    private Integer managerId;
-
     private Integer managerUserId;
 
     private Integer restaurantId;
-
-    private boolean isDeleted;
 }

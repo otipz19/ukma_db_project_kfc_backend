@@ -26,7 +26,5 @@ public class OrderEntity {
 
     private Integer clientUserId;
 
-    private Integer employeeId;
-
     private Integer employeeUserId;
 }

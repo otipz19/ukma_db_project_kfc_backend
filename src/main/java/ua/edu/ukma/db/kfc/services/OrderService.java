@@ -31,8 +31,6 @@ public class OrderService {
     @Inject
     private ClientService clientService;
     @Inject
-    private EmployeeService employeeService;
-    @Inject
     private ClientMealService clientMealService;
 
     public OrderDto getOrderById(int orderId) {
@@ -54,7 +52,6 @@ public class OrderService {
         orderMapper.toEntity(createOrderDto, orderEntity);
         orderEntity.setDateCreated(TimeUtils.getCurrentDateTimeUTC());
         orderEntity.setClientId(clientService.getIdByUserId(createOrderDto.getClientUserId()));
-        orderEntity.setEmployeeId(employeeService.getIdByUserId(createOrderDto.getEmployeeUserId()));
         orderValidator.validForCreate(orderEntity);
         int id = orderRepository.save(orderEntity);
 
