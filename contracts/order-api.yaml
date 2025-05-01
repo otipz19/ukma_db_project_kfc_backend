@@ -12,7 +12,7 @@ servers:
 
 paths:
   /api/order:
-    get:
+    put:
       operationId: getOrdersByFilter
       tags:
         - order-controller

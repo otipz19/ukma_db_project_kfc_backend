@@ -12,7 +12,7 @@ servers:
 
 paths:
   /api/employee:
-    get:
+    put:
       operationId: getEmployeesByFilter
       tags:
         - employee-controller

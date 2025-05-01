@@ -12,7 +12,7 @@ servers:
 
 paths:
   /api/restaurant:
-    get:
+    put:
       operationId: getRestaurantsByFilter
       tags:
         - restaurant-controller

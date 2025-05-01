@@ -12,7 +12,7 @@ servers:
 
 paths:
   /api/client-meal:
-    get:
+    put:
       operationId: getClientMealsByFilter
       tags:
         - client-meal-controller

@@ -35,7 +35,7 @@ paths:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
   /api/client:
-    get:
+    put:
       operationId: getClientsByFilter
       tags:
         - client-controller
