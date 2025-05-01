@@ -22,8 +22,6 @@ public class OrderEntity {
 
     private int restaurantId;
 
-    private Integer clientId;
-
     private Integer clientUserId;
 
     private Integer employeeUserId;

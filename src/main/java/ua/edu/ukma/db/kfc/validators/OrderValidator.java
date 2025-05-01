@@ -3,12 +3,12 @@ package ua.edu.ukma.db.kfc.validators;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ForbiddenException;
-import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
 import ua.edu.ukma.db.kfc.model.entities.OrderEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
+import ua.edu.ukma.db.kfc.repositories.ClientRepository;
 import ua.edu.ukma.db.kfc.repositories.EmployeeRepository;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 
@@ -22,6 +22,8 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
     private RestaurantRepository restaurantRepository;
     @Inject
     private EmployeeRepository employeeRepository;
+    @Inject
+    private ClientRepository clientRepository;
 
     @Override
     public void validForView(OrderEntity entity) {
@@ -44,7 +46,7 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
 
     private boolean clientCanView(OrderEntity entity) {
         ClientEntity currentClient = securityContextHolder.getCurrentClientOrThrow();
-        return Objects.equals(entity.getClientId(), currentClient.getId());
+        return Objects.equals(entity.getClientUserId(), currentClient.getUserId());
     }
 
     private boolean employeeCanInteract(OrderEntity entity) {
@@ -57,6 +59,8 @@ public class OrderValidator extends BaseValidator<OrderEntity> {
          super.validForCreate(entity);
          if (!restaurantRepository.existsById(entity.getRestaurantId()))
              throw new ValidationException("error.create-order.restaurant.not-exists");
+         if (entity.getClientUserId() != null && !clientRepository.existsByUserId(entity.getClientUserId()))
+             throw new ValidationException("error.create-order.client.not-exists");
          if (entity.getEmployeeUserId() != null) {
              EmployeeEntity employee = employeeRepository.findByUserId(entity.getEmployeeUserId())
                      .orElseThrow(() -> new ValidationException("error.create-order.employee.not-exists"));

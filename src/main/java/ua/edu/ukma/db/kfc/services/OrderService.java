@@ -29,8 +29,6 @@ public class OrderService {
     @Inject
     private OrderValidator orderValidator;
     @Inject
-    private ClientService clientService;
-    @Inject
     private ClientMealService clientMealService;
 
     public OrderDto getOrderById(int orderId) {
@@ -51,13 +49,13 @@ public class OrderService {
         OrderEntity orderEntity = new OrderEntity();
         orderMapper.toEntity(createOrderDto, orderEntity);
         orderEntity.setDateCreated(TimeUtils.getCurrentDateTimeUTC());
-        orderEntity.setClientId(clientService.getIdByUserId(createOrderDto.getClientUserId()));
         orderValidator.validForCreate(orderEntity);
         int id = orderRepository.save(orderEntity);
 
         clientMealService.createClientMeals(id, createOrderDto.getClientMeals());
 
-        orderRepository.addOrderBonuses(id, orderEntity.getClientId());
+        if (orderEntity.getClientUserId() != null)
+            orderRepository.addOrderBonuses(id, orderEntity.getClientUserId());
 
         return id;
     }

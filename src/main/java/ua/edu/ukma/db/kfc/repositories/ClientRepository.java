@@ -19,25 +19,12 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
 
     @Override
     public Optional<ClientEntity> findById(Integer id) {
-        String query = """
-                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
-                FROM clients JOIN users ON clients.user_id = users.id
-                WHERE clients.id = ?
-                """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return Optional.of(map(rs));
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-        return Optional.empty();
+        return findByUserId(id);
     }
 
     public Optional<ClientEntity> findByUserId(int userId) {
         String query = """
-                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                SELECT user_id, username, surname, first_name, middle_name, bonuses, birth_date
                 FROM clients JOIN users ON clients.user_id = users.id
                 WHERE user_id = ?
                 """;
@@ -54,7 +41,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
 
     public Optional<ClientEntity> findByUsername(String username) {
         String query = """
-                SELECT clients.id AS id, user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                SELECT user_id, username, surname, first_name, middle_name, bonuses, birth_date
                 FROM clients JOIN users ON clients.user_id = users.id
                 WHERE username = ?
                 """;
@@ -71,14 +58,14 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
 
     public List<ClientEntity> findByFilter(ClientsFilter filter) {
         String query = """
-                SELECT DISTINCT clients.id AS id, clients.user_id, username, surname, first_name, middle_name, bonuses, birth_date, is_deleted
+                SELECT DISTINCT clients.user_id, username, surname, first_name, middle_name, bonuses, birth_date
                 FROM clients
                     JOIN users ON clients.user_id = users.id
                     LEFT JOIN user_emails ON clients.user_id = user_emails.user_id
                     LEFT JOIN user_phones ON clients.user_id = user_phones.user_id
                 """;
         query =  filter.addFilteringAndPagination(query, Map.of(
-                "id", "clients.id",
+                "id", "clients.user_id",
                 "userId", "clients.user_id",
                 "username", "username",
                 "surname", "surname",
@@ -105,7 +92,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
 
     public long countByFilter(ClientsFilter filter) {
         String query = """
-                SELECT COUNT(DISTINCT clients.id)
+                SELECT COUNT (DISTINCT clients.user_id)
                 FROM clients
                     JOIN users ON clients.user_id = users.id
                     LEFT JOIN user_emails ON clients.user_id = user_emails.user_id
@@ -133,26 +120,21 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         return 0;
     }
 
-    public Optional<Integer> findIdByUserId(int userId) {
-        String query = """
-                SELECT id
-                FROM clients
-                WHERE user_id = ? AND is_deleted = false
-                """;
+    public boolean existsByUserId(int userId) {
+        String query = "SELECT EXISTS (SELECT * FROM clients WHERE user_id = ?)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return Optional.of(rs.getInt("id"));
+                return rs.next() && rs.getBoolean(1);
             }
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
-        return Optional.empty();
     }
 
     @Override
     public Integer save(ClientEntity entity) {
-        String query = "INSERT INTO clients (user_id, surname, first_name, middle_name, bonuses, birth_date) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+        String query = "INSERT INTO clients (user_id, surname, first_name, middle_name, bonuses, birth_date) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, entity.getUserId());
             stmt.setString(2, entity.getSurname());
@@ -160,10 +142,8 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
             stmt.setString(4, entity.getMiddleName());
             stmt.setInt(5, entity.getBonuses());
             stmt.setDate(6, TimeUtils.mapToSqlDate(entity.getBirthDate()));
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (!rs.next()) throw new DataBaseException("Failed to save client");
-                return rs.getInt(1);
-            }
+            stmt.executeUpdate();
+            return entity.getUserId();
         } catch (SQLException e) {
             throw new DataBaseException(e);
         }
@@ -173,7 +153,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         String query = """
                 UPDATE clients
                 SET surname = ?, first_name = ?, middle_name = ?, bonuses = ?, birth_date = ?
-                WHERE id = ? AND is_deleted = false
+                WHERE user_id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setString(1, entity.getSurname());
@@ -181,21 +161,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
             stmt.setString(3, entity.getMiddleName());
             stmt.setInt(4, entity.getBonuses());
             stmt.setDate(5, TimeUtils.mapToSqlDate(entity.getBirthDate()));
-            stmt.setInt(6, entity.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-    }
-
-    public void deleteByUserId(int userId) {
-        String query = """
-                UPDATE clients
-                SET is_deleted = true, user_id = null
-                WHERE user_id = ?
-                """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setInt(1, userId);
+            stmt.setInt(6, entity.getUserId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataBaseException(e);
@@ -204,15 +170,13 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
 
     private ClientEntity map(ResultSet rs) throws SQLException {
         return new ClientEntity(
-                rs.getInt("id"),
-                rs.getObject("user_id", Integer.class),
+                rs.getInt("user_id"),
                 rs.getString("username"),
                 rs.getString("surname"),
                 rs.getString("first_name"),
                 rs.getString("middle_name"),
                 rs.getInt("bonuses"),
-                TimeUtils.mapToLocalDate(rs.getDate("birth_date")),
-                rs.getBoolean("is_deleted")
+                TimeUtils.mapToLocalDate(rs.getDate("birth_date"))
         );
     }
 }

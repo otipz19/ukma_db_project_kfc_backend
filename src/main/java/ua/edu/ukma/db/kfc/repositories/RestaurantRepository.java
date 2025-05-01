@@ -141,7 +141,7 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
                 SELECT EXISTS (
                     SELECT *
                     FROM employees
-                    WHERE restaurant_id = ? AND is_deleted = false
+                    WHERE restaurant_id = ?
                 )
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {

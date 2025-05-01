@@ -19,15 +19,12 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     @Override
     public Optional<OrderEntity> findById(Integer id) {
         String query = """
-                SELECT o.id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id) as cost,
-                    o.date_created, o.is_completed,
-                    o.restaurant_id,
-                    o.client_id, c.user_id AS client_user_id,
-                    o.employee_user_id
-                FROM orders o
-                    LEFT JOIN clients c ON o.client_id = c.id
-                WHERE o.id = ?
+                SELECT id,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id) as cost,
+                    date_created, is_completed,
+                    restaurant_id, client_user_id, employee_user_id
+                FROM orders
+                WHERE id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -42,15 +39,12 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
 
     public List<OrderEntity> findByIds(Collection<Integer> ids) {
         String query = """
-                SELECT o.id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id) as cost,
-                    o.date_created, o.is_completed,
-                    o.restaurant_id,
-                    o.client_id, c.user_id AS client_user_id,
-                    o.employee_user_id
-                FROM orders o
-                    LEFT JOIN clients c ON o.client_id = c.id
-                WHERE o.id = ANY (?)
+                SELECT id,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id) as cost,
+                    date_created, is_completed,
+                    restaurant_id, client_user_id, employee_user_id
+                FROM orders
+                WHERE id = ANY (?)
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
@@ -67,23 +61,20 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
 
     public List<OrderEntity> findByFilter(OrdersFilter filter) {
         String query = """
-                SELECT o.id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id) AS cost,
-                    o.date_created, o.is_completed,
-                    o.restaurant_id,
-                    o.client_id, c.user_id AS client_user_id,
-                    o.employee_user_id
-                FROM orders o
-                    LEFT JOIN clients c ON o.client_id = c.id
+                SELECT id,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id) as cost,
+                    date_created, is_completed,
+                    restaurant_id, client_user_id, employee_user_id
+                FROM orders
                 """;
         query = filter.addFilteringAndPagination(query, Map.of(
-                    "id", "o.id",
-                    "restaurantId", "o.restaurant_id",
-                    "employeeUserId", "o.employee_user_id",
-                    "clientUserId", "c.user_id",
-                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id)",
-                    "dateCreated", "o.date_created",
-                    "isCompleted", "o.is_completed"
+                    "id", "id",
+                    "restaurantId", "restaurant_id",
+                    "employeeUserId", "employee_user_id",
+                    "clientUserId", "client_user_id",
+                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id)",
+                    "dateCreated", "date_created",
+                    "isCompleted", "is_completed"
                 )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
@@ -100,19 +91,15 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     }
 
     public long countByFilter(OrdersFilter filter) {
-        String query = """
-                SELECT COUNT(*)
-                FROM orders o
-                    LEFT JOIN clients c ON o.client_id = c.id
-                """;
+        String query = "SELECT COUNT(*) FROM orders o";
         query = filter.addFiltering(query, Map.of(
-                    "id", "o.id",
-                    "restaurantId", "o.restaurant_id",
-                    "employeeUserId", "o.employee_user_id",
-                    "clientUserId", "c.user_id",
-                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = o.id)",
-                    "dateCreated", "o.date_created",
-                    "isCompleted", "o.is_completed"
+                    "id", "id",
+                    "restaurantId", "restaurant_id",
+                    "employeeUserId", "employee_user_id",
+                    "clientUserId", "client_user_id",
+                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id)",
+                    "dateCreated", "date_created",
+                    "isCompleted", "is_completed"
                 )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
@@ -129,7 +116,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     @Override
     public Integer save(OrderEntity entity) {
         String query = """
-            INSERT INTO orders (date_created, is_completed, restaurant_id, client_id, employee_user_id)
+            INSERT INTO orders (date_created, is_completed, restaurant_id, client_user_id, employee_user_id)
             VALUES (?, ?, ?, ?, ?)
             RETURNING id
             """;
@@ -137,7 +124,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
             stmt.setTimestamp(1, TimeUtils.mapToSqlTimestamp(entity.getDateCreated()));
             stmt.setBoolean(2, entity.isCompleted());
             stmt.setInt(3, entity.getRestaurantId());
-            if (entity.getClientId() != null) stmt.setInt(4, entity.getClientId());
+            if (entity.getClientUserId() != null) stmt.setInt(4, entity.getClientUserId());
             else stmt.setNull(4, INTEGER);
             if (entity.getEmployeeUserId() != null) stmt.setInt(5, entity.getEmployeeUserId());
             else stmt.setNull(5, INTEGER);
@@ -172,15 +159,15 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
         }
     }
 
-    public void addOrderBonuses(int orderId, int clientId) {
+    public void addOrderBonuses(int orderId, int clientUserId) {
         String query = """
                 UPDATE clients
                 SET bonuses = bonuses + (SELECT CEIL(SUM(price * amount_in_order) * 0.01) FROM client_meals WHERE order_id = ?)
-                WHERE id = ?
+                WHERE user_id = ?
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setInt(1, orderId);
-            stmt.setInt(2, clientId);
+            stmt.setInt(2, clientUserId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataBaseException(e);
@@ -194,7 +181,6 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                 TimeUtils.mapToLocalDateTime(resultSet.getTimestamp("date_created")),
                 resultSet.getBoolean("is_completed"),
                 resultSet.getInt("restaurant_id"),
-                resultSet.getObject("client_id", Integer.class),
                 resultSet.getObject("client_user_id", Integer.class),
                 resultSet.getObject("employee_user_id", Integer.class)
         );

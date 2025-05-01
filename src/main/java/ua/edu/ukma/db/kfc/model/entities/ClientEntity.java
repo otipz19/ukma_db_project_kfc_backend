@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ClientEntity {
 
-    private Integer id;
-
     private Integer userId;
 
     private String username;
@@ -34,6 +32,4 @@ public class ClientEntity {
 
     @Past(message = "error.client.birth-date.future")
     private LocalDate birthDate;
-
-    private boolean isDeleted;
 }
