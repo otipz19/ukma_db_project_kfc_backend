@@ -21,7 +21,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     public Optional<OrderEntity> findById(Integer id) {
         String query = """
                 SELECT id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id) as cost,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id) as cost,
                     date_created, is_completed,
                     restaurant_id, client_user_id, employee_user_id
                 FROM orders
@@ -41,7 +41,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     public List<OrderEntity> findByIds(Collection<Integer> ids) {
         String query = """
                 SELECT id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id) as cost,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id) as cost,
                     date_created, is_completed,
                     restaurant_id, client_user_id, employee_user_id
                 FROM orders
@@ -63,7 +63,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     public List<OrderEntity> findByFilter(OrdersFilter filter) {
         String query = """
                 SELECT id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id) as cost,
+                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id) as cost,
                     date_created, is_completed,
                     restaurant_id, client_user_id, employee_user_id
                 FROM orders
@@ -73,7 +73,7 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                     "restaurantId", "restaurant_id",
                     "employeeUserId", "employee_user_id",
                     "clientUserId", "client_user_id",
-                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id)",
+                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id)",
                     "dateCreated", "date_created",
                     "isCompleted", "is_completed"
                 )
@@ -92,13 +92,13 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
     }
 
     public long countByFilter(OrdersFilter filter) {
-        String query = "SELECT COUNT(*) FROM orders o";
+        String query = "SELECT COUNT(*) FROM orders";
         query = filter.addFiltering(query, Map.of(
                     "id", "id",
                     "restaurantId", "restaurant_id",
                     "employeeUserId", "employee_user_id",
                     "clientUserId", "client_user_id",
-                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = id)",
+                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id)",
                     "dateCreated", "date_created",
                     "isCompleted", "is_completed"
                 )
