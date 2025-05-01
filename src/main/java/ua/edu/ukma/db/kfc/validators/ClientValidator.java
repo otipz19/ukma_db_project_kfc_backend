@@ -12,12 +12,12 @@ public class ClientValidator extends BaseValidator<ClientEntity> {
     @Override
     public void validForView(ClientEntity entity) {
         if (actionForThemself(entity)) return;
-        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.CASHIER);
     }
 
     @Override
     public void validForView(List<ClientEntity> userEntities) {
-        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER);
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.CASHIER);
     }
 
     @Override
