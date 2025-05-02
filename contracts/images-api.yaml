@@ -1,0 +1,118 @@
+openapi: 3.0.0
+info:
+  title: Image Service
+  version: '1.0'
+  description: Image Service
+
+tags:
+  - name: image-controller
+    description: Image Controller
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/image/{type}/{title}:
+    parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ImageType'
+      - name: title
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      operationId: getImage
+      tags:
+        - image-controller
+      summary: Get image
+      responses:
+        200:
+          description: Image
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        304:
+          $ref: 'common-types.yaml#/components/responses/NotModified'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    put:
+      operationId: setImage
+      tags:
+        - image-controller
+      summary: Set image
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ImageType'
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Image'
+      responses:
+        204:
+          description: Image was set
+        400:
+          $ref: 'common-types.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+    delete:
+      operationId: deleteImage
+      tags:
+        - image-controller
+      summary: Delete image
+      responses:
+        204:
+          description: Image was deleted
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        404:
+          $ref: 'common-types.yaml#/components/responses/NotFound'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    ImageType:
+      type: string
+      enum:
+        - MEAL_IMAGE
+        - INGREDIENT_IMAGE
+
+    Image:
+      type: object
+      properties:
+        image:
+          type: string
+          format: byte
+        mimeType:
+          type: string
+      required:
+        - image
+        - mimeType

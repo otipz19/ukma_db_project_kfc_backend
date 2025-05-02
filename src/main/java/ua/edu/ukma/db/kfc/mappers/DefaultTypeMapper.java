@@ -16,7 +16,7 @@ public class DefaultTypeMapper {
     }
 
     @Nullable
-    public OffsetDateTime wrapToUtcDateTime(@Nullable final LocalDateTime localDateTime) {
-        return TimeUtils.wrapToUtcDateTime(localDateTime);
+    public OffsetDateTime wrapToUtcTimeZone(@Nullable final LocalDateTime localDateTime) {
+        return TimeUtils.wrapToUtcTimeZone(localDateTime);
     }
 }

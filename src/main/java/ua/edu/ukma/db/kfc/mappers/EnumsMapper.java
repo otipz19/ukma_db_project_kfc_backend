@@ -4,8 +4,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ValueMapping;
 import ua.edu.ukma.db.kfc.model.enums.EmployeePositionEnum;
+import ua.edu.ukma.db.kfc.model.enums.ImageType;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
 import ua.edu.ukma.db.kfc.rest.model.EmployeePositionDto;
+import ua.edu.ukma.db.kfc.rest.model.ImageTypeDto;
 import ua.edu.ukma.db.kfc.rest.model.UserRoleDto;
 
 import java.util.List;
@@ -31,6 +33,12 @@ public interface EnumsMapper {
     EmployeePositionDto map(EmployeePositionEnum role);
 
     EmployeePositionEnum map(EmployeePositionDto role);
+
+    ImageType map(ImageTypeDto typeDto);
+
+    ImageType map(String type);
+
+    String mapToSting(ImageType typeDto);
 
     default <I, O> List<O> map(List<I> list, Function<I, O> mapper) {
         if (list == null) return List.of();

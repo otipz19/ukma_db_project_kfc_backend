@@ -24,7 +24,13 @@ public class TimeUtils {
                 : offsetDateTime.withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
     }
 
-    public OffsetDateTime wrapToUtcDateTime(@Nullable final LocalDateTime localDateTime) {
+    public LocalDateTime mapToCurrentTimeZone(@Nullable final LocalDateTime localDateTime) {
+        return localDateTime == null
+                ? null
+                : wrapToUtcTimeZone(localDateTime).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public OffsetDateTime wrapToUtcTimeZone(@Nullable final LocalDateTime localDateTime) {
         return localDateTime == null
                 ? null
                 : localDateTime.atOffset(ZoneOffset.UTC);
