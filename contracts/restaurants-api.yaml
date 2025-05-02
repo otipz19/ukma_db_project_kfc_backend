@@ -135,6 +135,31 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/restaurant/statistic:
+    put:
+      operationId: getRestaurantsStatisticByFilter
+      tags:
+        - restaurant-controller
+      summary: Get restaurants statistic by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantsStatisticFilter'
+      responses:
+        200:
+          description: List of restaurants statistic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantsStatisticList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UpdateRestaurant:
@@ -180,6 +205,70 @@ components:
                 type: integer
             query:
               type: string
+            isDeleted:
+              type: boolean
+              default: false
+
+    RestaurantStatistic:
+      allOf:
+        - $ref: '#/components/schemas/Restaurant'
+        - type: object
+          properties:
+            managerUserId:
+              type: integer
+            managerPassportNumber:
+              type: string
+            managerSurname:
+              type: string
+            numberOfOrders:
+              type: integer
+            totalOrdersPrice:
+              type: number
+            isDeleted:
+              type: boolean
+          required:
+            - numberOfOrders
+            - totalOrdersPrice
+            - isDeleted
+
+    RestaurantsStatisticList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RestaurantStatistic'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    RestaurantsStatisticFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            address:
+              type: string
+            minNumberOfOrders:
+              type: integer
+            maxNumberOfOrders:
+              type: integer
+            minTotalOrdersPrice:
+              type: number
+            maxTotalOrdersPrice:
+              type: number
+            fromDate:
+              type: string
+              format: date
+            toDate:
+              type: string
+              format: date
+            hasManager:
+              type: boolean
+              default: true
             isDeleted:
               type: boolean
               default: false

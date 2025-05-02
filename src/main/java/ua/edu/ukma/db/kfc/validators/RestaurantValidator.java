@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.RestaurantEntity;
 import ua.edu.ukma.db.kfc.model.enums.UserRoleEnum;
-import ua.edu.ukma.db.kfc.repositories.OrderRepository;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 
 import java.util.Objects;
@@ -15,6 +14,10 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
 
     @Inject
     private RestaurantRepository restaurantRepository;
+
+    public void validForViewStatistic() {
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN);
+    }
 
     @Override
     public void validForCreate(RestaurantEntity entity) {

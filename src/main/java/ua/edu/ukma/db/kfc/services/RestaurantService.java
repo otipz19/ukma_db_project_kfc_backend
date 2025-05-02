@@ -5,13 +5,12 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.filters.RestaurantsFilter;
+import ua.edu.ukma.db.kfc.filters.RestaurantsStatisticFilter;
 import ua.edu.ukma.db.kfc.mappers.RestaurantMapper;
 import ua.edu.ukma.db.kfc.model.entities.RestaurantEntity;
+import ua.edu.ukma.db.kfc.model.helper.RestaurantStatistic;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
-import ua.edu.ukma.db.kfc.rest.model.RestaurantDto;
-import ua.edu.ukma.db.kfc.rest.model.RestaurantsFilterDto;
-import ua.edu.ukma.db.kfc.rest.model.RestaurantsListDto;
-import ua.edu.ukma.db.kfc.rest.model.UpdateRestaurantDto;
+import ua.edu.ukma.db.kfc.rest.model.*;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
 import ua.edu.ukma.db.kfc.validators.RestaurantValidator;
 
@@ -34,6 +33,14 @@ public class RestaurantService {
         validator.validForView(restaurants);
         long total = repository.countByFilter(filter);
         return mapper.toResponse(restaurants, total);
+    }
+
+    public RestaurantsStatisticListDto getRestaurantsStatisticByFilter(RestaurantsStatisticFilterDto filterDto) {
+        validator.validForViewStatistic();
+        RestaurantsStatisticFilter filter = new RestaurantsStatisticFilter(filterDto);
+        List<RestaurantStatistic> restaurants = repository.findStatisticByFilter(filter);
+        long total = repository.countStatisticByFilter(filter);
+        return mapper.toStatisticResponse(restaurants, total);
     }
 
     public RestaurantDto getRestaurantById(int restaurantId, boolean requireNotDeleted) {

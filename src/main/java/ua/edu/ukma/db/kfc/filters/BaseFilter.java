@@ -34,7 +34,7 @@ public abstract class BaseFilter<F extends BaseFilterDto> {
     public String addFiltering(String query, Map<String, String> fieldExpressionMap) {
         if (filter == null) return query;
         Query split = splitQuery(query);
-        StringBuilder updatedQuery = new StringBuilder(split.select()).append('\n').append(split.from());
+        StringBuilder updatedQuery = new StringBuilder(split.selectFrom());
         formWhereClause(updatedQuery, fieldExpressionMap);
         updatedQuery.append('\n').append(split.groupBy());
         formHavingClause(updatedQuery, fieldExpressionMap);
@@ -50,12 +50,10 @@ public abstract class BaseFilter<F extends BaseFilterDto> {
 
     private Query splitQuery(String query) {
         String lowerCaseQuery = query.toLowerCase();
-        int indexOfFrom = lowerCaseQuery.indexOf("from");
-        int indexOfGroupBy = lowerCaseQuery.indexOf("group by");
-        String select = query.substring(0, indexOfFrom);
-        String from = query.substring(indexOfFrom, indexOfGroupBy == -1 ? query.length() : indexOfGroupBy);
+        int indexOfGroupBy = lowerCaseQuery.lastIndexOf("group by");
+        String selectFrom = query.substring(0, indexOfGroupBy == -1 ? query.length() : indexOfGroupBy);
         String groupBy = indexOfGroupBy == -1 ? "" : query.substring(indexOfGroupBy);
-        return new Query(select, from, groupBy);
+        return new Query(selectFrom, groupBy);
     }
 
     private void formWhereClause(StringBuilder updatedQuery, Map<String, String> fieldExpressionMap) {
@@ -108,5 +106,5 @@ public abstract class BaseFilter<F extends BaseFilterDto> {
 
     protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {}
 
-    private record Query(String select, String from, String groupBy) {}
+    private record Query(String selectFrom, String groupBy) {}
 }

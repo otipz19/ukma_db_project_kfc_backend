@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.RestaurantControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.RestaurantsFilterDto;
+import ua.edu.ukma.db.kfc.rest.model.RestaurantsStatisticFilterDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateRestaurantDto;
 import ua.edu.ukma.db.kfc.services.RestaurantService;
 
@@ -17,6 +18,11 @@ public class RestaurantController implements RestaurantControllerApi {
     @Override
     public Response getRestaurantsByFilter(RestaurantsFilterDto filter) {
         return Response.ok(service.getRestaurantsByFilter(filter)).build();
+    }
+
+    @Override
+    public Response getRestaurantsStatisticByFilter(RestaurantsStatisticFilterDto filter) {
+        return Response.ok(service.getRestaurantsStatisticByFilter(filter)).build();
     }
 
     @Override
