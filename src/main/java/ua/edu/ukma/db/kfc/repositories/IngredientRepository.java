@@ -2,7 +2,9 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.BaseFilter;
 import ua.edu.ukma.db.kfc.filters.IngredientsFilter;
+import ua.edu.ukma.db.kfc.filters.ValuableIngredientsFilter;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 
 import java.sql.*;
@@ -12,14 +14,30 @@ import java.util.*;
 public class IngredientRepository extends BaseRepository<IngredientEntity, Integer> {
 
     public List<IngredientEntity> findByFilter(IngredientsFilter filter) {
+        return findByFilter((BaseFilter<?>) filter);
+    }
+
+    public long countByFilter(IngredientsFilter filter) {
+        return countByFilter((BaseFilter<?>) filter);
+    }
+
+    public List<IngredientEntity> findByFilter(ValuableIngredientsFilter filter) {
+        return findByFilter((BaseFilter<?>) filter);
+    }
+
+    public long countByFilter(ValuableIngredientsFilter filter) {
+        return countByFilter((BaseFilter<?>) filter);
+    }
+
+    private List<IngredientEntity> findByFilter(BaseFilter<?> filter) {
         String query = "SELECT * FROM ingredients";
         query = filter.addFilteringAndPagination(query, Map.of(
-                "id", "id",
-                "title", "title",
-                "energeticValue", "energetic_value",
-                "weight", "weight",
-                "price", "price",
-                "isActual", "is_actual"
+                 "id", "ingredients.id",
+                 "title", "ingredients.title",
+                 "energeticValue", "ingredients.energetic_value",
+                 "weight", "ingredients.weight",
+                 "price", "ingredients.price",
+                 "isActual", "ingredients.is_actual"
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
@@ -35,15 +53,15 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
         }
     }
 
-    public long countByFilter(IngredientsFilter filter) {
+    private long countByFilter(BaseFilter<?> filter) {
         String query = "SELECT COUNT(*) FROM ingredients";
         query = filter.addFiltering(query, Map.of(
-                "id", "id",
-                "title", "title",
-                "energeticValue", "energetic_value",
-                "weight", "weight",
-                "price", "price",
-                "isActual", "is_actual"
+                "id", "ingredients.id",
+                "title", "ingredients.title",
+                "energeticValue", "ingredients.energetic_value",
+                "weight", "ingredients.weight",
+                "price", "ingredients.price",
+                "isActual", "ingredients.is_actual"
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {

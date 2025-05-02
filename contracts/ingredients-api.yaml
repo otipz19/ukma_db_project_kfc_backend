@@ -144,6 +144,29 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/ingredient/valuable:
+    put:
+      operationId: getValuableIngredients
+      tags:
+        - ingredient-controller
+      summary: Get valuable ingredients (ingredients that are used in every meal with price >= minMealPrice)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValuableIngredientsFilter'
+      responses:
+        200:
+          description: List of valuable ingredients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngredientsList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UpdateIngredient:
@@ -224,3 +247,13 @@ components:
             isActual:
               type: boolean
               default: true
+
+    ValuableIngredientsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            minMealPrice:
+              type: number
+          required:
+            - minMealPrice

@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.model.CreateIngredientDto;
 import ua.edu.ukma.db.kfc.rest.model.IngredientsFilterDto;
+import ua.edu.ukma.db.kfc.rest.model.ValuableIngredientsFilterDto;
 import ua.edu.ukma.db.kfc.services.IngredientService;
 import ua.edu.ukma.db.kfc.rest.api.IngredientControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.UpdateIngredientDto;
@@ -18,6 +19,11 @@ public class IngredientController implements IngredientControllerApi {
     @Override
     public Response getIngredientsByFilter(IngredientsFilterDto filter) {
         return Response.ok(ingredientService.getIngredientsByFilter(filter)).build();
+    }
+
+    @Override
+    public Response getValuableIngredients(ValuableIngredientsFilterDto filter) {
+        return Response.ok(ingredientService.getValuableIngredients(filter)).build();
     }
 
     @Override
