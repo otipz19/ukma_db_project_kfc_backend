@@ -277,7 +277,6 @@ components:
               type: number
             isActual:
               type: boolean
-              default: true
 
     MealStatistic:
       type: object
@@ -336,4 +335,3 @@ components:
               format: date-time
             isActual:
               type: boolean
-              default: true

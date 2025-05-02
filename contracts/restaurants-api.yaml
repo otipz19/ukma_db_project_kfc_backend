@@ -207,7 +207,6 @@ components:
               type: string
             isDeleted:
               type: boolean
-              default: false
 
     RestaurantStatistic:
       allOf:
@@ -268,7 +267,5 @@ components:
               format: date
             hasManager:
               type: boolean
-              default: true
             isDeleted:
               type: boolean
-              default: false

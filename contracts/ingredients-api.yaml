@@ -246,7 +246,6 @@ components:
               type: number
             isActual:
               type: boolean
-              default: true
 
     ValuableIngredientsFilter:
       allOf:
