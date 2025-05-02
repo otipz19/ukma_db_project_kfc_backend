@@ -102,6 +102,8 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
     private void validateRestaurant(EmployeeEntity entity) {
         if (entity.getRestaurantId() == null || !restaurantRepository.existsById(entity.getRestaurantId()))
             throw new ValidationException("error.create-employee.restaurant.not-exists");
+        if (entity.getPosition() == EmployeePositionEnum.MANAGER && restaurantRepository.hasManager(entity.getRestaurantId()))
+            throw new ValidationException("error.create-employee.restaurant.has-manager");
     }
 
     private void validateManager(EmployeeEntity entity) {

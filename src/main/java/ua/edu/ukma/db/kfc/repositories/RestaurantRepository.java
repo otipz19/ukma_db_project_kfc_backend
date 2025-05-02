@@ -164,6 +164,24 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
         }
     }
 
+    public boolean hasManager(int id) {
+        String query = """
+                SELECT EXISTS (
+                    SELECT *
+                    FROM employees JOIN users ON employees.user_id = users.id
+                    WHERE restaurant_id = ? AND role = 'MANAGER'
+                )
+                """;
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
     public void clearDeleted() {
         String query = """
                 DELETE FROM restaurants

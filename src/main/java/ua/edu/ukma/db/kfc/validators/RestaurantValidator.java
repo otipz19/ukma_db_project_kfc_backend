@@ -15,8 +15,6 @@ public class RestaurantValidator extends BaseValidator<RestaurantEntity> {
 
     @Inject
     private RestaurantRepository restaurantRepository;
-    @Inject
-    private OrderRepository orderRepository;
 
     @Override
     public void validForCreate(RestaurantEntity entity) {
