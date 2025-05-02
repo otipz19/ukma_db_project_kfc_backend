@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
 import ua.edu.ukma.db.kfc.filters.BaseFilter;
 import ua.edu.ukma.db.kfc.filters.IngredientsFilter;
+import ua.edu.ukma.db.kfc.filters.IngredientsInActiveUseFilter;
 import ua.edu.ukma.db.kfc.filters.ValuableIngredientsFilter;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
 
@@ -26,6 +27,14 @@ public class IngredientRepository extends BaseRepository<IngredientEntity, Integ
     }
 
     public long countByFilter(ValuableIngredientsFilter filter) {
+        return countByFilter((BaseFilter<?>) filter);
+    }
+
+    public List<IngredientEntity> findByFilter(IngredientsInActiveUseFilter filter) {
+        return findByFilter((BaseFilter<?>) filter);
+    }
+
+    public long countByFilter(IngredientsInActiveUseFilter filter) {
         return countByFilter((BaseFilter<?>) filter);
     }
 

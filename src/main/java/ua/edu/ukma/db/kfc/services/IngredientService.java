@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.filters.IngredientsFilter;
+import ua.edu.ukma.db.kfc.filters.IngredientsInActiveUseFilter;
 import ua.edu.ukma.db.kfc.filters.ValuableIngredientsFilter;
 import ua.edu.ukma.db.kfc.mappers.IngredientMapper;
 import ua.edu.ukma.db.kfc.model.entities.IngredientEntity;
@@ -38,6 +39,14 @@ public class IngredientService {
 
     public IngredientsListDto getValuableIngredients(ValuableIngredientsFilterDto filterDto) {
         ValuableIngredientsFilter filter = new ValuableIngredientsFilter(filterDto);
+        List<IngredientEntity> ingredients = repository.findByFilter(filter);
+        validator.validForView(ingredients);
+        long total = repository.countByFilter(filter);
+        return mapper.toResponse(ingredients, total);
+    }
+
+    public IngredientsListDto getIngredientsInActiveUse(IngredientsInActiveUseFilterDto filterDto) {
+        IngredientsInActiveUseFilter filter = new IngredientsInActiveUseFilter(filterDto);
         List<IngredientEntity> ingredients = repository.findByFilter(filter);
         validator.validForView(ingredients);
         long total = repository.countByFilter(filter);

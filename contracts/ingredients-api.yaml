@@ -167,6 +167,29 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/ingredient/in-active-use:
+    put:
+      operationId: getIngredientsInActiveUse
+      tags:
+        - ingredient-controller
+      summary: Get ingredients in active use (ingredients that are used only in meals that have orders)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngredientsInActiveUseFilter'
+      responses:
+        200:
+          description: List of ingredients in active use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngredientsList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UpdateIngredient:
@@ -256,3 +279,17 @@ components:
               type: number
           required:
             - minMealPrice
+
+    IngredientsInActiveUseFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            fromDate:
+              type: string
+              format: date
+            toDate:
+              type: string
+              format: date
+            isActual:
+              type: boolean
