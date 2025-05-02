@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.Response;
 import ua.edu.ukma.db.kfc.rest.api.EmployeeControllerApi;
 import ua.edu.ukma.db.kfc.rest.model.EmployeeHiringDto;
 import ua.edu.ukma.db.kfc.rest.model.EmployeesFilterDto;
+import ua.edu.ukma.db.kfc.rest.model.EmployeesStatisticFilterDto;
 import ua.edu.ukma.db.kfc.rest.model.UpdateEmployeeDto;
 import ua.edu.ukma.db.kfc.services.EmployeeService;
 
@@ -18,6 +19,11 @@ public class EmployeeController implements EmployeeControllerApi {
     @Override
     public Response getEmployeesByFilter(EmployeesFilterDto filter) {
         return Response.ok(service.getEmployeesByFilter(filter)).build();
+    }
+
+    @Override
+    public Response getEmployeesStatisticByFilter(EmployeesStatisticFilterDto filter) {
+        return Response.ok(service.getEmployeesStatisticByFilter(filter)).build();
     }
 
     @Override

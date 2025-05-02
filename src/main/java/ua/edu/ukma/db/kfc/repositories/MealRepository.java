@@ -29,7 +29,7 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 List<MealEntity> result = new ArrayList<>();
                 while (rs.next())
@@ -56,7 +56,7 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getLong(1);
             }
@@ -225,7 +225,7 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 List<MealStatistic> result = new ArrayList<>();
                 while (rs.next())
@@ -255,7 +255,7 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
         );
         query = "SELECT COUNT(*) FROM (" + query + ")";
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getLong(1);
             }

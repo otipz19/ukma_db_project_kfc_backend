@@ -43,7 +43,7 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 List<RestaurantEntity> restaurants = new ArrayList<>();
                 while (rs.next())
@@ -64,7 +64,7 @@ public class RestaurantRepository extends BaseRepository<RestaurantEntity, Integ
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getLong(1);
             }

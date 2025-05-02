@@ -52,7 +52,7 @@ public class MealsStatisticFilter extends BaseFilter<MealsStatisticFilterDto> {
 
     @Override
     @SneakyThrows
-    protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+    protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         if (filter.getIds() != null && !filter.getIds().isEmpty())
             st.setArray(parametersIndexOffset++, tr.createArrayOf(filter.getIds(), Integer.class));
         if (filter.getTitle() != null && !filter.getTitle().isBlank())

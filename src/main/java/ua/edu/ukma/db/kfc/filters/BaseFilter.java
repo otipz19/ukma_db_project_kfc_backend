@@ -97,16 +97,16 @@ public abstract class BaseFilter<F extends BaseFilterDto> {
         }
     }
 
-    public void setWhereClauseParameters(PreparedStatement st, Transaction tr) {
-        setWhereClauseParameters(st, tr, 1);
+    public void setParameters(PreparedStatement st, Transaction tr) {
+        setParameters(st, tr, 1);
     }
 
-    public void setWhereClauseParameters(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+    public void setParameters(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         if (filter == null) return;
-        setWhereClauseParametersInternal(st, tr, parametersIndexOffset);
+        setParametersInternal(st, tr, parametersIndexOffset);
     }
 
-    protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {}
+    protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {}
 
     private record Query(String select, String from, String groupBy) {}
 }

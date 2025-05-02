@@ -55,7 +55,7 @@ public class EmployeesFilter extends BaseFilter<EmployeesFilterDto> {
 
     @Override
     @SneakyThrows
-    protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+    protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         if (filter.getQuery() != null && !filter.getQuery().isBlank())
             st.setString(parametersIndexOffset++, filter.getQuery());
         if (filter.getMinSalary() != null)

@@ -132,6 +132,31 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/employee/statistic:
+    put:
+      operationId: getEmployeesStatisticByFilter
+      tags:
+        - employee-controller
+      summary: Get employees statistic by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeesStatisticFilter'
+      responses:
+        200:
+          description: List of employees statistic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeesStatisticList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     EmployeePosition:
@@ -246,3 +271,70 @@ components:
               type: integer
             restaurantId:
               type: integer
+
+    EmployeeStatistic:
+      type: object
+      properties:
+        userId:
+          type: integer
+        passportNumber:
+          type: string
+        surname:
+          type: string
+        position:
+          $ref: '#/components/schemas/EmployeePosition'
+        restaurantId:
+          type: integer
+        restaurantAddress:
+          type: string
+        numberOfOrders:
+          type: integer
+        totalOrdersPrice:
+          type: number
+      required:
+        - userId
+        - passportNumber
+        - surname
+        - position
+        - numberOfOrders
+        - totalOrdersPrice
+
+    EmployeesStatisticList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeStatistic'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    EmployeesStatisticFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            passportNumber:
+              type: string
+            position:
+              $ref: '#/components/schemas/EmployeePosition'
+            restaurantId:
+              type: integer
+            minNumberOfOrders:
+              type: integer
+            maxNumberOfOrders:
+              type: integer
+            minTotalOrdersPrice:
+              type: number
+            maxTotalOrdersPrice:
+              type: number
+            fromDate:
+              type: string
+              format: date
+            toDate:
+              type: string
+              format: date

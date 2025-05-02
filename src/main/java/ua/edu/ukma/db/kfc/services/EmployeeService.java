@@ -5,9 +5,11 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.filters.EmployeesFilter;
+import ua.edu.ukma.db.kfc.filters.EmployeesStatisticFilter;
 import ua.edu.ukma.db.kfc.mappers.EmployeeMapper;
 import ua.edu.ukma.db.kfc.mappers.EnumsMapper;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
+import ua.edu.ukma.db.kfc.model.helper.EmployeeStatistic;
 import ua.edu.ukma.db.kfc.repositories.EmployeeRepository;
 import ua.edu.ukma.db.kfc.rest.model.*;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
@@ -42,6 +44,14 @@ public class EmployeeService {
         validator.validForView(entities);
         long total = repository.countByFilter(filter);
         return mapper.toResponse(entities, total);
+    }
+
+    public EmployeesStatisticListDto getEmployeesStatisticByFilter(EmployeesStatisticFilterDto filterDto) {
+        EmployeesStatisticFilter filter = new EmployeesStatisticFilter(filterDto, enumsMapper);
+        List<EmployeeStatistic> statistics = repository.findStatisticByFilter(filter);
+        validator.validForViewStatistics(statistics);
+        long total = repository.countStatisticByFilter(filter);
+        return mapper.toStatisticResponse(statistics, total);
     }
 
     public int hireEmployee(EmployeeHiringDto employeeHiringDto) {

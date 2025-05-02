@@ -59,4 +59,12 @@ public class TimeUtils {
                 ? null
                 : Timestamp.valueOf(localDateTime);
     }
+
+    public LocalDate minDate() {
+        return LocalDate.of(1900, 1, 1);
+    }
+
+    public LocalDate maxDate() {
+        return LocalDate.of(9999, 12, 31);
+    }
 }

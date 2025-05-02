@@ -78,7 +78,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 List<ClientEntity> clients = new ArrayList<>();
                 while (rs.next())
@@ -110,7 +110,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
                 )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            filter.setParameters(stmt, transactionManager.currentTransaction());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getLong(1);
             }

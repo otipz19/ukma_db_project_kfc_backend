@@ -42,7 +42,7 @@ public class OrdersFilter extends BaseFilter<OrdersFilterDto> {
 
     @Override
     @SneakyThrows
-    protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+    protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         if (filter.getId() != null)
             st.setInt(parametersIndexOffset++, filter.getId());
         if (filter.getRestaurantId() != null)

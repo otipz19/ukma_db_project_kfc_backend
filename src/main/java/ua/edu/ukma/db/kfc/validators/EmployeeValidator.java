@@ -6,6 +6,7 @@ import jakarta.ws.rs.ForbiddenException;
 import ua.edu.ukma.db.kfc.exceptions.ValidationException;
 import ua.edu.ukma.db.kfc.model.entities.EmployeeEntity;
 import ua.edu.ukma.db.kfc.model.enums.EmployeePositionEnum;
+import ua.edu.ukma.db.kfc.model.helper.EmployeeStatistic;
 import ua.edu.ukma.db.kfc.repositories.EmployeeRepository;
 import ua.edu.ukma.db.kfc.repositories.RestaurantRepository;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
@@ -28,9 +29,14 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
     }
 
     @Override
-    public void validForView(List<EmployeeEntity> userEntities) {
+    public void validForView(List<EmployeeEntity> entities) {
         EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
-        userEntities.removeIf(e -> !hasPermission(e, currentEmployee));
+        entities.removeIf(e -> !hasPermission(e, currentEmployee));
+    }
+
+    public void validForViewStatistics(List<EmployeeStatistic> statistics) {
+        EmployeeEntity currentEmployee = securityContextHolder.getCurrentEmployeeOrThrow();
+        statistics.removeIf(e -> !hasPermission(e.getPosition(), e.getRestaurantId(), currentEmployee));
     }
 
     @Override
@@ -70,10 +76,14 @@ public class EmployeeValidator extends BaseValidator<EmployeeEntity> {
     }
 
     private boolean hasPermission(EmployeeEntity entity, EmployeeEntity currentEmployee) {
+        return hasPermission(entity.getPosition(), entity.getRestaurantId(), currentEmployee);
+    }
+
+    private boolean hasPermission(EmployeePositionEnum position, Integer restaurantId, EmployeeEntity currentEmployee) {
         if (currentEmployee.getPosition() == EmployeePositionEnum.TOP_MANAGER) return true;
-        if (currentEmployee.getPosition().getPriority() >= entity.getPosition().getPriority())
+        if (currentEmployee.getPosition().getPriority() >= position.getPriority())
             return false;
-        return Objects.equals(currentEmployee.getRestaurantId(), entity.getRestaurantId());
+        return Objects.equals(currentEmployee.getRestaurantId(), restaurantId);
     }
 
     private void validateAge(EmployeeEntity entity) {

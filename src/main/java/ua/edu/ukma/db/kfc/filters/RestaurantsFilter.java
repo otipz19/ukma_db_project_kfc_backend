@@ -33,7 +33,7 @@ public class RestaurantsFilter extends BaseFilter<RestaurantsFilterDto> {
 
     @Override
     @SneakyThrows
-    protected void setWhereClauseParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+    protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         if (filter.getIds() != null && !filter.getIds().isEmpty()) {
             Array array = tr.createArrayOf(filter.getIds(), Integer.class);
             st.setArray(parametersIndexOffset++, array);
