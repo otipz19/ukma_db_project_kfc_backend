@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
+import ua.edu.ukma.db.kfc.filters.AdventurousClientsFilter;
 import ua.edu.ukma.db.kfc.filters.ClientsFilter;
 import ua.edu.ukma.db.kfc.mappers.ClientMapper;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
@@ -46,6 +47,14 @@ public class ClientService {
 
     public ClientsListDto getClientsByFilter(ClientsFilterDto filterDto) {
         ClientsFilter filter = new ClientsFilter(filterDto);
+        List<ClientEntity> entities = repository.findByFilter(filter);
+        validator.validForView(entities);
+        long total = repository.countByFilter(filter);
+        return mapper.toResponse(entities, total);
+    }
+
+    public ClientsListDto getAdventurousClients(AdventurousClientsFilterDto filterDto) {
+        AdventurousClientsFilter filter = new AdventurousClientsFilter(filterDto);
         List<ClientEntity> entities = repository.findByFilter(filter);
         validator.validForView(entities);
         long total = repository.countByFilter(filter);

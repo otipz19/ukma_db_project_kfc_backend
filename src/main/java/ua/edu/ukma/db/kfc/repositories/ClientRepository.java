@@ -2,6 +2,8 @@ package ua.edu.ukma.db.kfc.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
+import ua.edu.ukma.db.kfc.filters.AdventurousClientsFilter;
+import ua.edu.ukma.db.kfc.filters.BaseFilter;
 import ua.edu.ukma.db.kfc.filters.ClientsFilter;
 import ua.edu.ukma.db.kfc.model.entities.ClientEntity;
 import ua.edu.ukma.db.kfc.utils.TimeUtils;
@@ -57,6 +59,22 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
     }
 
     public List<ClientEntity> findByFilter(ClientsFilter filter) {
+        return findByFilter((BaseFilter<?>) filter);
+    }
+
+    public long countByFilter(ClientsFilter filter) {
+        return countByFilter((BaseFilter<?>) filter);
+    }
+
+    public List<ClientEntity> findByFilter(AdventurousClientsFilter filter) {
+        return findByFilter((BaseFilter<?>) filter);
+    }
+
+    public long countByFilter(AdventurousClientsFilter filter) {
+        return countByFilter((BaseFilter<?>) filter);
+    }
+
+    private List<ClientEntity> findByFilter(BaseFilter<?> filter) {
         String query = """
                 SELECT DISTINCT clients.user_id, username, surname, first_name, middle_name, bonuses, birth_date
                 FROM clients
@@ -67,14 +85,14 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         query =  filter.addFilteringAndPagination(query, Map.of(
                 "id", "clients.user_id",
                 "userId", "clients.user_id",
-                "username", "username",
-                "surname", "surname",
-                "firstName", "first_name",
-                "middleName", "middle_name",
+                "username", "users.username",
+                "surname", "clients.surname",
+                "firstName", "clients.first_name",
+                "middleName", "clients.middle_name",
                 "phone", "phone",
                 "email", "email",
-                "bonuses", "bonuses",
-                "birthDate", "birth_date"
+                "bonuses", "clients.bonuses",
+               "birthDate", "clients.birth_date"
             )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
@@ -90,7 +108,7 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
         }
     }
 
-    public long countByFilter(ClientsFilter filter) {
+    private long countByFilter(BaseFilter<?> filter) {
         String query = """
                 SELECT COUNT (DISTINCT clients.user_id)
                 FROM clients
@@ -99,15 +117,17 @@ public class ClientRepository extends BaseRepository<ClientEntity, Integer> {
                     LEFT JOIN user_phones ON clients.user_id = user_phones.user_id
                 """;
         query =  filter.addFiltering(query, Map.of(
-                        "username", "username",
-                        "surname", "surname",
-                        "firstName", "first_name",
-                        "middleName", "middle_name",
-                        "phone", "phone",
-                        "email", "email",
-                        "bonuses", "bonuses",
-                        "birthDate", "birth_date"
-                )
+                "id", "clients.user_id",
+                "userId", "clients.user_id",
+                "username", "users.username",
+                "surname", "clients.surname",
+                "firstName", "clients.first_name",
+                "middleName", "clients.middle_name",
+                "phone", "phone",
+                "email", "email",
+                "bonuses", "clients.bonuses",
+                "birthDate", "clients.birth_date"
+            )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             filter.setParameters(stmt, transactionManager.currentTransaction());

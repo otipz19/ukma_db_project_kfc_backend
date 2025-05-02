@@ -129,6 +129,31 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/client/adventurous:
+    put:
+      operationId: getAdventurousClients
+      tags:
+        - client-controller
+      summary: Get adventurous clients (clients who ordered all meals in some price range)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdventurousClientsFilter'
+      responses:
+        200:
+          description: List of adventurous clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientsList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UpdateClient:
@@ -207,3 +232,13 @@ components:
             maxBirthDate:
               type: string
               format: date
+
+    AdventurousClientsFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            minPrice:
+              type: number
+            maxPrice:
+              type: number
