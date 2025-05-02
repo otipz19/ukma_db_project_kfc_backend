@@ -22,7 +22,13 @@ public class OrderEntity {
 
     private int restaurantId;
 
+    private String restaurantAddress;
+
     private Integer clientUserId;
 
+    private String clientSurname;
+
     private Integer employeeUserId;
+
+    private String employeeSurname;
 }

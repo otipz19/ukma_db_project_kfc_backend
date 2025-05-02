@@ -175,6 +175,12 @@ components:
               type: integer
             cost:
               type: number
+            restaurantAddress:
+              type: string
+            employeeSurname:
+              type: string
+            clientSurname:
+              type: string
             dateCreated:
               type: string
               format: date-time
@@ -183,6 +189,7 @@ components:
           required:
             - id
             - cost
+            - restaurantAddress
             - dateCreated
             - isCompleted
 

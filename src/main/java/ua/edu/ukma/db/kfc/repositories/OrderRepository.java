@@ -19,33 +19,24 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
 
     @Override
     public Optional<OrderEntity> findById(Integer id) {
-        String query = """
-                SELECT id,
-                    (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id) as cost,
-                    date_created, is_completed,
-                    restaurant_id, client_user_id, employee_user_id
-                FROM orders
-                WHERE id = ?
-                """;
-        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return Optional.of(map(rs));
-            }
-        } catch (SQLException e) {
-            throw new DataBaseException(e);
-        }
-        return Optional.empty();
+        List<OrderEntity> order = findByIds(Collections.singleton(id));
+        if (order.isEmpty()) return Optional.empty();
+        return Optional.of(order.getFirst());
     }
 
     public List<OrderEntity> findByIds(Collection<Integer> ids) {
         String query = """
-                SELECT id,
+                SELECT orders.id,
                     (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id) as cost,
                     date_created, is_completed,
-                    restaurant_id, client_user_id, employee_user_id
+                    orders.restaurant_id, restaurants.address as restaurant_address,
+                    client_user_id, clients.surname as client_surname,
+                    employee_user_id, employees.surname as employee_surname
                 FROM orders
-                WHERE id = ANY (?)
+                    JOIN restaurants ON orders.restaurant_id = restaurants.id
+                    LEFT JOIN employees ON employee_user_id = employees.user_id
+                    LEFT JOIN clients ON client_user_id = clients.user_id
+                WHERE orders.id = ANY (?)
                 """;
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             stmt.setArray(1, transactionManager.currentTransaction().createArrayOf(ids, Integer.class));
@@ -62,21 +53,29 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
 
     public List<OrderEntity> findByFilter(OrdersFilter filter) {
         String query = """
-                SELECT id,
+                SELECT orders.id,
                     (SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id) as cost,
                     date_created, is_completed,
-                    restaurant_id, client_user_id, employee_user_id
+                    orders.restaurant_id, restaurants.address as restaurant_address,
+                    client_user_id, clients.surname as client_surname,
+                    employee_user_id, employees.surname as employee_surname
                 FROM orders
+                    JOIN restaurants ON orders.restaurant_id = restaurants.id
+                    LEFT JOIN employees ON employee_user_id = employees.user_id
+                    LEFT JOIN clients ON client_user_id = clients.user_id
                 """;
         query = filter.addFilteringAndPagination(query, Map.of(
-                    "id", "id",
-                    "restaurantId", "restaurant_id",
-                    "employeeUserId", "employee_user_id",
-                    "clientUserId", "client_user_id",
-                    "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id)",
-                    "dateCreated", "date_created",
-                    "isCompleted", "is_completed"
-                )
+                "id", "orders.id",
+                "restaurantId", "orders.restaurant_id",
+                "restaurantAddress", "restaurants.address",
+                "employeeUserId", "employee_user_id",
+                "employeeSurname", "employees.surname",
+                "clientUserId", "client_user_id",
+                "clientSurname", "clients.surname",
+                "cost", "(SELECT SUM(price * amount_in_order) FROM client_meals WHERE order_id = orders.id)",
+                "dateCreated", "date_created",
+                "isCompleted", "is_completed"
+            )
         );
         try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
             filter.setParameters(stmt, transactionManager.currentTransaction());
@@ -180,8 +179,11 @@ public class OrderRepository extends BaseRepository<OrderEntity, Integer> {
                 TimeUtils.mapToLocalDateTime(resultSet.getTimestamp("date_created")),
                 resultSet.getBoolean("is_completed"),
                 resultSet.getInt("restaurant_id"),
+                resultSet.getString("restaurant_address"),
                 resultSet.getObject("client_user_id", Integer.class),
-                resultSet.getObject("employee_user_id", Integer.class)
+                resultSet.getString("client_surname"),
+                resultSet.getObject("employee_user_id", Integer.class),
+                resultSet.getString("employee_surname")
         );
     }
 }
