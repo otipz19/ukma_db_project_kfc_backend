@@ -3,10 +3,8 @@ package ua.edu.ukma.db.kfc.mappers;
 import org.mapstruct.*;
 import ua.edu.ukma.db.kfc.model.entities.MealEntity;
 import ua.edu.ukma.db.kfc.model.entities.MealIngredientEntity;
-import ua.edu.ukma.db.kfc.rest.model.CreateMealDto;
-import ua.edu.ukma.db.kfc.rest.model.MealDto;
-import ua.edu.ukma.db.kfc.rest.model.MealsListDto;
-import ua.edu.ukma.db.kfc.rest.model.UpdateMealDto;
+import ua.edu.ukma.db.kfc.model.helper.MealStatistic;
+import ua.edu.ukma.db.kfc.rest.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +24,11 @@ public interface MealMapper {
     default MealsListDto toResponse(List<MealEntity> entities, Map<Integer, List<MealIngredientEntity>> ingredientsMap, long total) {
         return new MealsListDto(toResponse(entities, ingredientsMap), total);
     }
+
+    @Mapping(target = "isActual", source = "actual")
+    MealStatisticDto toResponse(MealStatistic mealStatistic);
+
+    MealsStatisticListDto toResponse(List<MealStatistic> items, long total);
 
     @Mapping(target = "id", ignore = true)
     void toEntity(UpdateMealDto dto, @MappingTarget MealEntity entity);

@@ -3,7 +3,10 @@ package ua.edu.ukma.db.kfc.repositories;
 import jakarta.enterprise.context.ApplicationScoped;
 import ua.edu.ukma.db.kfc.exceptions.DataBaseException;
 import ua.edu.ukma.db.kfc.filters.MealsFilter;
+import ua.edu.ukma.db.kfc.filters.MealsStatisticFilter;
 import ua.edu.ukma.db.kfc.model.entities.MealEntity;
+import ua.edu.ukma.db.kfc.model.helper.MealStatistic;
+import ua.edu.ukma.db.kfc.utils.TimeUtils;
 
 import java.sql.*;
 import java.util.*;
@@ -203,6 +206,65 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
         }
     }
 
+    public List<MealStatistic> findStatisticByFilter(MealsStatisticFilter filter) {
+        String query = """
+               SELECT m.id, m.title, m.is_actual,
+                      COUNT(cm.id) AS client_meals_count,
+                      MAX(o.date_created) AS last_ordered_date
+               FROM meals m
+                    LEFT JOIN client_meals cm ON m.id = cm.meal_id
+                    LEFT JOIN orders o ON cm.order_id = o.id
+               GROUP BY m.id, m.title, m.is_actual
+               """;
+        query = filter.addFilteringAndPagination(query, Map.of(
+                "id", "m.id",
+                "title", "m.title",
+                "clientMealsCount", "COUNT(cm.id)",
+                "lastOrderedDate", "MAX(o.date_created)",
+                "isActual", "m.is_actual"
+            )
+        );
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<MealStatistic> result = new ArrayList<>();
+                while (rs.next())
+                    result.add(mapStatistic(rs));
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+    }
+
+    public long countStatisticByFilter(MealsStatisticFilter filter) {
+        String query = """
+               SELECT 1
+               FROM meals m
+                    LEFT JOIN client_meals cm ON m.id = cm.meal_id
+                    LEFT JOIN orders o ON cm.order_id = o.id
+               GROUP BY m.id, m.title, m.is_actual
+               """;
+        query = filter.addFiltering(query, Map.of(
+                "id", "m.id",
+                "title", "m.title",
+                "clientMealsCount", "COUNT(cm.id)",
+                "lastOrderedDate", "MAX(o.date_created)",
+                "isActual", "m.is_actual"
+            )
+        );
+        query = "SELECT COUNT(*) FROM (" + query + ")";
+        try (PreparedStatement stmt = transactionManager.currentTransaction().prepareStatement(query)) {
+            filter.setWhereClauseParameters(stmt, transactionManager.currentTransaction());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException(e);
+        }
+        return 0;
+    }
+
     private MealEntity map(ResultSet rs) throws SQLException {
         MealEntity entity = new MealEntity();
         entity.setId(rs.getInt("id"));
@@ -217,4 +279,13 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
         return entity;
     }
 
+    private MealStatistic mapStatistic(ResultSet rs) throws SQLException {
+        return new MealStatistic(
+                rs.getInt("id"),
+                rs.getString("title"),
+                rs.getInt("client_meals_count"),
+                TimeUtils.mapToLocalDateTime(rs.getTimestamp("last_ordered_date")),
+                rs.getBoolean("is_actual")
+        );
+    }
 }

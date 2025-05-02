@@ -17,7 +17,7 @@ public class OrdersFilter extends BaseFilter<OrdersFilterDto> {
     }
 
     @Override
-    protected List<String> formConditions(Map<String, String> fieldExpressionMap) {
+    protected List<String> formWhereConditions(Map<String, String> fieldExpressionMap) {
         List<String> conditions = new ArrayList<>();
         if (filter.getId() != null)
             conditions.add(fieldExpressionMap.get("id") + " = ?");

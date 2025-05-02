@@ -5,9 +5,11 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.NotFoundException;
 import ua.edu.ukma.db.kfc.filters.MealsFilter;
+import ua.edu.ukma.db.kfc.filters.MealsStatisticFilter;
 import ua.edu.ukma.db.kfc.mappers.MealMapper;
 import ua.edu.ukma.db.kfc.model.entities.MealEntity;
 import ua.edu.ukma.db.kfc.model.entities.MealIngredientEntity;
+import ua.edu.ukma.db.kfc.model.helper.MealStatistic;
 import ua.edu.ukma.db.kfc.rest.model.*;
 import ua.edu.ukma.db.kfc.repositories.MealRepository;
 import ua.edu.ukma.db.kfc.transactions.interceptor.TransactionInterceptor;
@@ -38,6 +40,14 @@ public class MealService {
         );
         long total = repository.countByFilter(filter);
         return mapper.toResponse(meals, ingredientsMap, total);
+    }
+
+    public MealsStatisticListDto getMealsStatisticByFilter(MealsStatisticFilterDto filterDto) {
+        validator.validForViewMealsStatistic();
+        MealsStatisticFilter filter = new MealsStatisticFilter(filterDto);
+        List<MealStatistic> mealsStatistic = repository.findStatisticByFilter(filter);
+        long total = repository.countStatisticByFilter(filter);
+        return mapper.toResponse(mealsStatistic, total);
     }
 
     public MealDto getMealById(int id, boolean requireActual) {

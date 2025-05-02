@@ -22,7 +22,7 @@ public class EmployeesFilter extends BaseFilter<EmployeesFilterDto> {
     }
 
     @Override
-    protected List<String> formConditions(Map<String, String> fieldExpressionMap) {
+    protected List<String> formWhereConditions(Map<String, String> fieldExpressionMap) {
         List<String> conditions = new ArrayList<>();
         if (filter.getQuery() != null && !filter.getQuery().isBlank()) {
             conditions.add(

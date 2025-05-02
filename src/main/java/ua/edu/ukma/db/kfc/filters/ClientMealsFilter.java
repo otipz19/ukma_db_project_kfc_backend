@@ -16,7 +16,7 @@ public class ClientMealsFilter extends BaseFilter<ClientMealsFilterDto> {
     }
 
     @Override
-    protected List<String> formConditions(Map<String, String> fieldExpressionMap) {
+    protected List<String> formWhereConditions(Map<String, String> fieldExpressionMap) {
         List<String> conditions = new ArrayList<>();
         if (filter.getIds() != null && !filter.getIds().isEmpty())
             conditions.add(fieldExpressionMap.get("id") + " = ANY (?)");

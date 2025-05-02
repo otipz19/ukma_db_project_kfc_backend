@@ -13,6 +13,10 @@ public class MealValidator extends BaseValidator<MealEntity> {
     @Inject
     private MealRepository mealRepository;
 
+    public void validForViewMealsStatistic() {
+        securityContextHolder.requireRole(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER);
+    }
+
     @Override
     public void validForCreate(MealEntity entity) {
         securityContextHolder.requireRole(UserRoleEnum.ADMIN);

@@ -141,6 +141,31 @@ paths:
         500:
           $ref: 'common-types.yaml#/components/responses/InternalServerError'
 
+  /api/meal/statistic:
+    put:
+      operationId: getMealsStatisticByFilter
+      tags:
+        - meal-controller
+      summary: Get meals statistic by filter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealsStatisticFilter'
+      responses:
+        200:
+          description: List of meals statistic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealsStatisticList'
+        401:
+          $ref: 'common-types.yaml#/components/responses/Unauthorized'
+        403:
+          $ref: 'common-types.yaml#/components/responses/Forbidden'
+        500:
+          $ref: 'common-types.yaml#/components/responses/InternalServerError'
+
 components:
   schemas:
     UpdateMeal:
@@ -250,6 +275,65 @@ components:
               type: number
             maxAdditionalPrice:
               type: number
+            isActual:
+              type: boolean
+              default: true
+
+    MealStatistic:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        clientMealsCount:
+          type: integer
+        lastOrderedDate:
+          type: string
+          format: date-time
+        isActual:
+          type: boolean
+      required:
+        - id
+        - title
+        - clientMealsCount
+        - isActual
+
+    MealsStatisticList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MealStatistic'
+        total:
+          type: integer
+          format: int64
+      required:
+        - items
+        - total
+
+    MealsStatisticFilter:
+      allOf:
+        - $ref: 'common-types.yaml#/components/schemas/BaseFilter'
+        - type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+            title:
+              type: string
+            minClientMealsCount:
+              type: integer
+            maxClientMealsCount:
+              type: integer
+            minLastOrderedDate:
+              type: string
+              format: date-time
+            maxLastOrderedDate:
+              type: string
+              format: date-time
             isActual:
               type: boolean
               default: true
