@@ -30,7 +30,7 @@ public class AdventurousClientsFilter extends BaseFilter<AdventurousClientsFilte
                                 FROM orders JOIN client_meals ON orders.id = client_meals.order_id
                                 WHERE client_user_id = %1$s
                             )
-                        ) AND EXISTS (SELECT * FROM orders WHERE client_user_id = %1$s)
+                        ) AND EXISTS (SELECT * FROM meals WHERE (price BETWEEN ? AND ?) AND is_actual)
                         """, fieldExpressionMap.get("userId")
                 )
         );
@@ -41,8 +41,10 @@ public class AdventurousClientsFilter extends BaseFilter<AdventurousClientsFilte
     @SneakyThrows
     protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
         BigDecimal minPrice = filter.getMinPrice() != null ? filter.getMinPrice() : BigDecimal.ZERO;
-        st.setBigDecimal(parametersIndexOffset++, minPrice);
         BigDecimal maxPrice = filter.getMaxPrice() != null ? filter.getMaxPrice() : BigDecimal.valueOf(Double.MAX_VALUE);
+        st.setBigDecimal(parametersIndexOffset++, minPrice);
+        st.setBigDecimal(parametersIndexOffset++, maxPrice);
+        st.setBigDecimal(parametersIndexOffset++, minPrice);
         st.setBigDecimal(parametersIndexOffset, maxPrice);
     }
 }
