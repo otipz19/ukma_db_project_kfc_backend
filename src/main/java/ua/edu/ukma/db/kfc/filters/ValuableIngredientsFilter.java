@@ -33,7 +33,6 @@ public class ValuableIngredientsFilter extends BaseFilter<ValuableIngredientsFil
                         """, fieldExpressionMap.get("id")
                 )
         );
-        conditions.add(fieldExpressionMap.get("isActual"));
         return conditions;
     }
 
