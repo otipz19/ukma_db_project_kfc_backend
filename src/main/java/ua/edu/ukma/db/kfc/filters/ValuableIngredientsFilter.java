@@ -29,7 +29,7 @@ public class ValuableIngredientsFilter extends BaseFilter<ValuableIngredientsFil
                                 FROM meals_ingredients
                                 WHERE ingredient_id = %s
                             )
-                        ) AND EXISTS (SELECT * FROM meals WHERE price >= ?)
+                        ) AND EXISTS (SELECT * FROM meals WHERE price >= ? AND is_actual)
                         """, fieldExpressionMap.get("id")
                 )
         );
