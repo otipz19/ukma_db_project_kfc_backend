@@ -208,19 +208,24 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
 
     public List<MealStatistic> findStatisticByFilter(MealsStatisticFilter filter) {
         String query = """
+               WITH orders_data AS (
+                    SELECT cm.id, cm.meal_id, o.date_created
+                    FROM client_meals cm
+                        JOIN orders o ON cm.order_id = o.id
+                    WHERE o.restaurant_id = ? OR ?
+               )
                SELECT m.id, m.title, m.is_actual,
-                      COUNT(cm.id) AS client_meals_count,
-                      MAX(o.date_created) AS last_ordered_date
+                      COUNT(od.id) AS client_meals_count,
+                      MAX(od.date_created) AS last_ordered_date
                FROM meals m
-                    LEFT JOIN client_meals cm ON m.id = cm.meal_id
-                    LEFT JOIN orders o ON cm.order_id = o.id
+                   LEFT JOIN orders_data od ON m.id = od.meal_id
                GROUP BY m.id, m.title, m.is_actual
                """;
         query = filter.addFilteringAndPagination(query, Map.of(
                 "id", "m.id",
                 "title", "m.title",
-                "clientMealsCount", "COUNT(cm.id)",
-                "lastOrderedDate", "MAX(o.date_created)",
+                "clientMealsCount", "COUNT(od.id)",
+                "lastOrderedDate", "MAX(od.date_created)",
                 "isActual", "m.is_actual"
             )
         );
@@ -239,17 +244,22 @@ public class MealRepository extends BaseRepository<MealEntity, Integer> {
 
     public long countStatisticByFilter(MealsStatisticFilter filter) {
         String query = """
+               WITH orders_data AS (
+                    SELECT cm.id, cm.meal_id, o.date_created
+                    FROM client_meals cm
+                        JOIN orders o ON cm.order_id = o.id
+                    WHERE o.restaurant_id = ? OR ?
+               )
                SELECT 1
                FROM meals m
-                    LEFT JOIN client_meals cm ON m.id = cm.meal_id
-                    LEFT JOIN orders o ON cm.order_id = o.id
+                   LEFT JOIN orders_data od ON m.id = od.meal_id
                GROUP BY m.id, m.title, m.is_actual
                """;
         query = filter.addFiltering(query, Map.of(
                 "id", "m.id",
                 "title", "m.title",
-                "clientMealsCount", "COUNT(cm.id)",
-                "lastOrderedDate", "MAX(o.date_created)",
+                "clientMealsCount", "COUNT(od.id)",
+                "lastOrderedDate", "MAX(od.date_created)",
                 "isActual", "m.is_actual"
             )
         );

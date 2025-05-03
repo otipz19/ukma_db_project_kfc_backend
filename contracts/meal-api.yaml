@@ -333,5 +333,7 @@ components:
             maxLastOrderedDate:
               type: string
               format: date-time
+            restaurantId:
+              type: integer
             isActual:
               type: boolean

@@ -3,11 +3,14 @@ package ua.edu.ukma.db.kfc.filters;
 import lombok.SneakyThrows;
 import ua.edu.ukma.db.kfc.rest.model.MealsStatisticFilterDto;
 import ua.edu.ukma.db.kfc.transactions.Transaction;
+import ua.edu.ukma.db.kfc.utils.TimeUtils;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static java.sql.Types.INTEGER;
 
 public class MealsStatisticFilter extends BaseFilter<MealsStatisticFilterDto> {
 
@@ -53,6 +56,12 @@ public class MealsStatisticFilter extends BaseFilter<MealsStatisticFilterDto> {
     @Override
     @SneakyThrows
     protected void setParametersInternal(PreparedStatement st, Transaction tr, int parametersIndexOffset) {
+        if (filter.getRestaurantId() != null)
+            st.setInt(parametersIndexOffset++, filter.getRestaurantId());
+        else
+            st.setNull(parametersIndexOffset++, INTEGER);
+        st.setBoolean(parametersIndexOffset++, filter.getRestaurantId() == null);
+
         if (filter.getIds() != null && !filter.getIds().isEmpty())
             st.setArray(parametersIndexOffset++, tr.createArrayOf(filter.getIds(), Integer.class));
         if (filter.getTitle() != null && !filter.getTitle().isBlank())
@@ -65,8 +74,8 @@ public class MealsStatisticFilter extends BaseFilter<MealsStatisticFilterDto> {
         if (filter.getMaxClientMealsCount() != null)
             st.setInt(parametersIndexOffset++, filter.getMaxClientMealsCount());
         if (filter.getMinLastOrderedDate() != null)
-            st.setObject(parametersIndexOffset++, filter.getMinLastOrderedDate());
+            st.setTimestamp(parametersIndexOffset++, TimeUtils.mapToSqlTimestamp(TimeUtils.mapToUtcDateTime(filter.getMinLastOrderedDate())));
         if (filter.getMaxLastOrderedDate() != null)
-            st.setObject(parametersIndexOffset, filter.getMaxLastOrderedDate());
+            st.setTimestamp(parametersIndexOffset, TimeUtils.mapToSqlTimestamp(TimeUtils.mapToUtcDateTime(filter.getMaxLastOrderedDate())));
     }
 }
